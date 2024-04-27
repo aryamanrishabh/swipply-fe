@@ -1,7 +1,16 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./app/*"],
+      "@urls": ["./app/urls"],
+      "@utils/*": ["./app/utils/*"],
+      "@hooks/*": ["./app/hooks/*"],
+      "@redux/*": ["./app/redux/*"],
+      "@styles/*": ["./app/styles/*"],
+      "@metadata/*": ["./app/metadata/*"],
+      "@constants/*": ["./app/constants/*"],
+      "@Components/*": ["./app/Components/*"],
+      "@axiosInstance": ["./app/axiosInstance"]
     }
   }
 }
