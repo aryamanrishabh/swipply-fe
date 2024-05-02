@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.2",
+    "amazon-cognito-identity-js": "^6.3.12",
     "axios": "^1.6.8",
     "dayjs": "^1.11.10",
     "env-cmd": "^10.1.0",
