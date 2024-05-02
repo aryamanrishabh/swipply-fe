@@ -158,7 +158,7 @@ const ProfilePage = () => {
       //   }
       // );
 
-      await axiosInstance.put(`${urls.candidateResumeUpload}?userId=1`, file, {
+      await axiosInstance.post(`${urls.candidateResumeUpload}?userId=1`, file, {
         headers: { "Content-Type": file?.type },
       });
     } catch (error) {
