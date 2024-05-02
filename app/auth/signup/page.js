@@ -29,8 +29,8 @@ const SignupPage = () => {
       <span className="text-sm">
         Already have an account?{" "}
         <Link
-          href="/auth/login"
-          className="text-xs underline underline-offset-1 tracking-wider font-semibold text-cyan-600"
+          href="/auth/login/candidate"
+          className="text-xs underline underline-offset-2 tracking-wider font-semibold text-cyan-600"
         >
           LOGIN
         </Link>

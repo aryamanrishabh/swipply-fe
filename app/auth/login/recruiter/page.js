@@ -2,21 +2,20 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js";
 
 import TextInput from "@Components/TextInput";
 import { SolidButton } from "@Components/Buttons";
 
 import recruiterPool from "@/constants/recruiterPool";
 
-const RecruiterSignupPage = () => {
+const RecruiterLoginPage = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    lastname: "",
-    firstname: "",
   });
 
-  const { email, firstname, lastname, password } = formData;
+  const { email, password } = formData;
 
   const handleFormInput = (e) => {
     try {
@@ -29,51 +28,37 @@ const RecruiterSignupPage = () => {
     } catch (error) {}
   };
 
-  const handleSubmit = async () => {
-    recruiterPool.signUp(
-      email,
-      password,
-      [
-        { Name: "given_name", Value: firstname },
-        { Name: "family_name", Value: lastname },
-      ],
-      null,
-      (err, data) => {
-        if (err) console.log(err, "error");
-        console.log(data, "data");
-      }
-    );
+  const handleSubmit = () => {
+    const user = new CognitoUser({
+      Username: email,
+      Pool: recruiterPool,
+    });
+
+    const authDetails = new AuthenticationDetails({
+      Username: email,
+      Password: password,
+    });
+
+    user.authenticateUser(authDetails, {
+      onSuccess: (data) => {
+        console.log("Success: ", data);
+      },
+      onFailure: (err) => {
+        console.log("Failure: ", err);
+      },
+    });
   };
 
   return (
     <div className="flex flex-col gap-y-4">
       <div className="flex flex-col gap-y-12">
-        <h1 className="text-2xl font-bold">Sign Up</h1>
+        <h1 className="text-2xl font-bold">Login</h1>
 
         <div className="flex flex-col gap-y-6">
           <div className="flex flex-col gap-y-2">
             <label className="label">Business Email</label>
             <TextInput name="email" value={email} onChange={handleFormInput} />
           </div>
-
-          <div className="flex flex-col gap-y-2">
-            <label className="label">First Name</label>
-            <TextInput
-              name="firstname"
-              value={firstname}
-              onChange={handleFormInput}
-            />
-          </div>
-
-          <div className="flex flex-col gap-y-2">
-            <label className="label">Last Name</label>
-            <TextInput
-              name="lastname"
-              value={lastname}
-              onChange={handleFormInput}
-            />
-          </div>
-
           <div className="flex flex-col gap-y-2">
             <label className="label">Password</label>
             <TextInput
@@ -84,20 +69,27 @@ const RecruiterSignupPage = () => {
           </div>
         </div>
 
-        <SolidButton onClick={handleSubmit}>Sign Up</SolidButton>
+        <SolidButton onClick={handleSubmit}>Hello</SolidButton>
       </div>
 
       <span className="text-sm">
-        Already have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link
-          href="/auth/login/recruiter"
+          href="/auth/signup"
           className="text-xs underline underline-offset-2 tracking-wider font-semibold text-cyan-600"
         >
-          LOGIN
+          REGISTER
         </Link>
       </span>
+
+      <Link
+        href="/auth/login/candidate"
+        className="text-xs underline underline-offset-2 tracking-wider font-semibold text-cyan-600"
+      >
+        ARE YOU A CANDIDATE?
+      </Link>
     </div>
   );
 };
 
-export default RecruiterSignupPage;
+export default RecruiterLoginPage;
