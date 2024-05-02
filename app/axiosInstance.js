@@ -68,7 +68,7 @@ const setTokenHeadersOnRequest = async (config) => {
       let storeAuthTokens = JSON.parse(storeAuthTokensString);
       if (storeAuthTokens && storeAuthTokens["x-access-token"]) {
         const accessToken = storeAuthTokens["x-access-token"];
-        authHeader = { Authorization: `Bearer ${accessToken}` };
+        authHeader = { Authorization: `${accessToken}` };
       }
     }
   }

@@ -24,6 +24,6 @@
 
 @layer components {
   .label {
-    @apply text-base;
+    @apply text-base text-gray-700;
   }
 }
