@@ -10,7 +10,7 @@ const customSelectStyles = {
     boxShadow: "none",
     minHeight: "unset",
     fontSize: "0.875rem",
-    borderColor: "#e5e7eb",
+    borderColor: "rgb(156 163 175)",
   }),
   valueContainer: (baseStyles) => ({
     ...baseStyles,

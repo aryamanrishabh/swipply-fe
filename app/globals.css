@@ -16,6 +16,97 @@
   display: none;
 }
 
+#wrapper .react-datepicker-wrapper {
+  width: 100%;
+}
+
+#wrapper .react-datepicker-popper {
+  z-index: 10;
+}
+
+#wrapper .react-datepicker {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+#wrapper .react-datepicker__month-container {
+  display: flex;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  flex-direction: column;
+}
+
+#wrapper .react-datepicker__header {
+  padding: 0;
+  display: flex;
+  border-bottom: none;
+  flex-direction: column;
+  background-color: white;
+}
+
+#wrapper .react-datepicker__current-month {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #344054;
+}
+
+#wrapper .react-datepicker__day-names {
+  margin: 0.75rem 0 0.25rem;
+}
+
+#wrapper .react-datepicker__month {
+  margin: 0;
+  display: flex;
+  row-gap: 0.25rem;
+  flex-direction: column;
+}
+
+#wrapper .react-datepicker__day,
+#wrapper .react-datepicker__day-name {
+  margin: 0;
+  width: 2.5rem;
+  aspect-ratio: 1;
+  padding: 0.625rem;
+  line-height: unset;
+  color: #344054;
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+}
+
+#wrapper .react-datepicker__day {
+  font-weight: 400;
+  border-radius: 50%;
+}
+
+#wrapper .react-datepicker__day:hover {
+  font-weight: 500;
+}
+
+#wrapper .react-datepicker__day-name {
+  font-weight: 500;
+}
+
+#wrapper .react-datepicker__day--disabled {
+  opacity: 0.5;
+}
+
+#wrapper .react-datepicker__day--selected {
+  color: white;
+  background-color: rgb(8 145 178) !important;
+}
+
+#wrapper .react-datepicker__day--keyboard-selected,
+#wrapper .react-datepicker__month-text--keyboard-selected,
+#wrapper .react-datepicker__quarter-text--keyboard-selected,
+#wrapper .react-datepicker__year-text--keyboard-selected {
+  background-color: unset;
+}
+
+#wrapper .react-datepicker__day--today:hover {
+  background-color: #bad9f1;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -24,6 +115,6 @@
 
 @layer components {
   .label {
-    @apply text-base text-gray-700;
+    @apply text-base text-gray-700 font-semibold;
   }
 }

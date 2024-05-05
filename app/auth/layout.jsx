@@ -6,7 +6,7 @@ export const metadata = {
 const layout = ({ children }) => {
   return (
     <div className="flex flex-1">
-      <div className="w-1/2 bg-slate-400"></div>
+      <div className="w-1/2 bg-slate-400" />
       <div className="flex w-1/2 px-16 py-12">{children}</div>
     </div>
   );
