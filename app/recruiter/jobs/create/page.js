@@ -11,6 +11,9 @@ import urls from "@/constants/urls";
 import axiosInstance from "@/axiosInstance";
 import SelectDropdown from "@/Components/SelectDropdown";
 
+import { jobTypes } from "@/constants/jobTypes";
+import { locationTypes } from "@/constants/locationTypes";
+
 const weights = Object.freeze([
   { label: "1", value: 1 },
   { label: "2", value: 2 },
@@ -27,21 +30,21 @@ const skillEntry = Object.freeze({
 const CreateJobPage = () => {
   const [jobData, setJobData] = useState({
     id: null,
-    companyId: null,
-    recruiterId: null,
     city: "",
     state: "",
     title: "",
     about: "",
     country: "",
     zipcode: "",
-    createdAt: "",
-    updatedAt: "",
     isActive: true,
-    locationType: "",
-    employmentType: "",
+    createdAt: null,
+    companyId: null,
+    recruiterId: null,
+    locationType: null,
     qualifications: "",
+    employmentType: null,
     responsibilities: "",
+    hourlyCompensation: "",
     skills: [{ ...skillEntry }],
     minimumYearsOfExperience: "",
   });
@@ -59,8 +62,18 @@ const CreateJobPage = () => {
     employmentType,
     qualifications,
     responsibilities,
+    hourlyCompensation,
     minimumYearsOfExperience,
   } = jobData;
+
+  const publishButtonDisabled =
+    !title ||
+    !employmentType ||
+    !locationType ||
+    !hourlyCompensation ||
+    !city ||
+    !state ||
+    !country;
 
   // TODO remove
   const id = "test-job-id";
@@ -104,11 +117,22 @@ const CreateJobPage = () => {
         `${urls.companyJobPostings}/${id}`
       );
 
-      const postingData = response?.data;
+      const postingData = response?.data || {};
 
-      if (!postingData?.skills?.length) {
-        postingData.skills = [];
+      if (!postingData?.skills?.length) postingData.skills = [];
+      if (postingData?.locationType) {
+        const locationVal = locationTypes?.find(
+          ({ value }) => value === postingData?.locationType
+        );
+        postingData.locationType = locationVal;
       }
+      if (postingData?.employmentType) {
+        const employmentVal = jobTypes?.find(
+          ({ value }) => value === postingData?.employmentType
+        );
+        postingData.employmentType = employmentVal;
+      }
+
       setJobData((prev) => ({ ...prev, ...postingData }));
     } catch (error) {}
   };
@@ -116,10 +140,21 @@ const CreateJobPage = () => {
   const handleSubmit = async () => {
     try {
       let payload = { ...jobData };
-      payload.id = id;
       payload.companyId = "company-id";
       payload.recruiterId = "recruiter-id";
       payload.createdAt = "dummy time val";
+
+      // TODO ID fix
+      if (jobData?.id) payload.id = id;
+      else payload.id = null;
+
+      if (payload?.locationType)
+        payload.locationType = payload.locationType?.value;
+
+      if (payload?.employmentType)
+        payload.employmentType = payload.employmentType?.value;
+
+      // TODO filter skills
 
       console.log(payload);
 
@@ -129,16 +164,62 @@ const CreateJobPage = () => {
     }
   };
 
-  console.log(skills);
-
   return (
     <div className="flex py-8 w-full h-full justify-center">
       <div className="flex flex-col max-h-full overflow-auto gap-y-6 w-3/4 max-w-5xl">
         <h1 className="font-bold text-2xl">Create Job Posting</h1>
 
         <div className="flex flex-col gap-y-4 max-w-xl">
-          <h2 className="text-lg font-semibold">Title</h2>
+          <h2 className="text-lg font-semibold">Title *</h2>
           <TextInput name="title" value={title} onChange={handleInput} />
+        </div>
+
+        <div className="flex items-center gap-x-14">
+          <div className="flex flex-col gap-y-4 w-80">
+            <h2 className="text-lg font-semibold">Employment Type *</h2>
+
+            <SelectDropdown
+              options={jobTypes}
+              value={employmentType}
+              onChange={(e) =>
+                setJobData((prev) => ({ ...prev, employmentType: e }))
+              }
+            />
+          </div>
+
+          <div className="flex flex-col gap-y-4 w-80">
+            <h2 className="text-lg font-semibold">Location Type *</h2>
+
+            <SelectDropdown
+              value={locationType}
+              options={locationTypes}
+              onChange={(e) =>
+                setJobData((prev) => ({ ...prev, locationType: e }))
+              }
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center gap-x-14">
+          <div className="flex flex-col gap-y-4">
+            <h2 className="text-lg font-semibold">Hourly Compensation *</h2>
+            <TextInput
+              onChange={handleInput}
+              name="hourlyCompensation"
+              value={hourlyCompensation}
+            />
+          </div>
+
+          <div className="flex flex-col gap-y-4">
+            <h2 className="text-lg font-semibold">
+              Years of Experience Desired
+            </h2>
+            <TextInput
+              onChange={handleInput}
+              name="minimumYearsOfExperience"
+              value={minimumYearsOfExperience}
+            />
+          </div>
         </div>
 
         <div className="flex flex-col gap-y-4">
@@ -146,19 +227,19 @@ const CreateJobPage = () => {
 
           <div className="flex items-center gap-x-14">
             <div className="flex flex-col gap-y-4">
-              <h2 className="text-lg font-semibold">City</h2>
+              <h2 className="text-lg font-semibold">City *</h2>
               <TextInput name="city" value={city} onChange={handleInput} />
             </div>
 
             <div className="flex flex-col gap-y-4">
-              <h2 className="text-lg font-semibold">State</h2>
+              <h2 className="text-lg font-semibold">State *</h2>
               <TextInput name="state" value={state} onChange={handleInput} />
             </div>
           </div>
 
           <div className="flex items-center gap-x-14">
             <div className="flex flex-col gap-y-4">
-              <h2 className="text-lg font-semibold">Country</h2>
+              <h2 className="text-lg font-semibold">Country *</h2>
               <TextInput
                 name="country"
                 value={country}
@@ -174,38 +255,6 @@ const CreateJobPage = () => {
                 onChange={handleInput}
               />
             </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-y-4">
-          <h2 className="text-lg font-semibold">Employment Type</h2>
-          <TextInput
-            className="max-w-40"
-            name="employmentType"
-            value={employmentType}
-            onChange={handleInput}
-          />
-        </div>
-
-        <div className="flex items-center gap-x-14">
-          <div className="flex flex-col gap-y-4">
-            <h2 className="text-lg font-semibold">Location Type</h2>
-            <TextInput
-              name="locationType"
-              value={locationType}
-              onChange={handleInput}
-            />
-          </div>
-
-          <div className="flex flex-col gap-y-4">
-            <h2 className="text-lg font-semibold">
-              Years of Experience Desired
-            </h2>
-            <TextInput
-              onChange={handleInput}
-              name="minimumYearsOfExperience"
-              value={minimumYearsOfExperience}
-            />
           </div>
         </div>
 
@@ -274,7 +323,9 @@ const CreateJobPage = () => {
 
         <div className="flex items-center gap-x-8">
           <OutlineButton>CANCEL</OutlineButton>
-          <SolidButton onClick={handleSubmit}>PUBLISH</SolidButton>
+          <SolidButton disabled={publishButtonDisabled} onClick={handleSubmit}>
+            PUBLISH
+          </SolidButton>
         </div>
       </div>
     </div>

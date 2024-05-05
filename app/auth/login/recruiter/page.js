@@ -2,14 +2,18 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useDispatch } from "react-redux";
 import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js";
 
 import TextInput from "@Components/TextInput";
 import { SolidButton } from "@Components/Buttons";
 
+import { RECRUITER } from "@/constants";
 import recruiterPool from "@/constants/recruiterPool";
 
 const RecruiterLoginPage = () => {
+  const dispatch = useDispatch();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -41,6 +45,14 @@ const RecruiterLoginPage = () => {
 
     user.authenticateUser(authDetails, {
       onSuccess: (data) => {
+        const idToken = data?.idToken;
+
+        const usertype = RECRUITER;
+        const uid = idToken?.payload?.sub;
+        const accessKey = idToken?.jwtToken;
+
+        dispatch(login({ uid, accessKey, usertype }));
+
         console.log("Success: ", data);
       },
       onFailure: (err) => {
@@ -69,7 +81,7 @@ const RecruiterLoginPage = () => {
           </div>
         </div>
 
-        <SolidButton onClick={handleSubmit}>Hello</SolidButton>
+        <SolidButton onClick={handleSubmit}>Login</SolidButton>
       </div>
 
       <span className="text-sm">
