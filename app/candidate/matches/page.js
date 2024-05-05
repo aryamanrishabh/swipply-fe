@@ -7,8 +7,10 @@ import { IoMdAddCircleOutline } from "react-icons/io";
 import TextInput from "@/Components/TextInput";
 import axiosInstance from "@/axiosInstance";
 import urls from "@/constants/urls";
-import { CANDIDATE, CANDIDATE_TABLE } from "@/constants";
+import { CANDIDATE, CANDIDATE_TABLE, JOB_TABLE } from "@/constants";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/router";
+import { usePathname } from "next/navigation";
 
 const MatchCard = () => {
   return (
@@ -27,6 +29,7 @@ const MatchCard = () => {
 
 const CandidateMatchesPage = () => {
   const user = useSelector((state) => state?.auth?.user);
+  const router = usePathname();
 
   const [matches, setMatches] = useState(null);
 
@@ -40,7 +43,9 @@ const CandidateMatchesPage = () => {
       const id = "6769";
 
       const res = await axiosInstance.get(
-        `${urls.match}?userId=${id}&type=${CANDIDATE_TABLE}`
+        `${urls.match}?userId=${id}&type=${
+          router.toLowerCase().includes(CANDIDATE) ? CANDIDATE_TABLE : JOB_TABLE
+        }`
       );
     } catch (error) {}
   };
