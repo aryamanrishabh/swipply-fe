@@ -1,8 +1,10 @@
 import Cookies from "universal-cookie";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
-// import urls from "@urls";
+import urls from "@/constants/urls";
 import axiosInstance, { tokenKey } from "@axiosInstance";
+
+import { CANDIDATE } from "@/constants";
 
 const cookies = new Cookies();
 
@@ -15,15 +17,22 @@ const initialState = {
 export const login = createAsyncThunk(
   "login",
   async (payload, { fulfillWithValue, rejectWithValue }) => {
-    // try {
-    //   const res = await axiosInstance.post(urls.login, payload);
-    //   const profile = res?.data;
-    //   window.location.href = "/dashboard";
-    //   return fulfillWithValue({ profile });
-    // } catch (error) {
-    //   console.log(error, "Error in login");
-    //   return rejectWithValue(error?.response?.data?.message);
-    // }
+    try {
+      const { uid, accessToken, usertype } = payload;
+
+      cookies.set("access-token", accessToken);
+
+      const url =
+        usertype === CANDIDATE ? urls.candidateProfile : urls.recruiterProfile;
+
+      const res = await axiosInstance.get(`${url}/${uid}`);
+      const profile = res?.data;
+      window.location.href = `/${usertype}/dashboard`;
+      return fulfillWithValue({ profile });
+    } catch (error) {
+      console.log(error, "Error in login");
+      return rejectWithValue(error?.response?.data?.message);
+    }
   }
 );
 
@@ -64,8 +73,8 @@ const authSlice = createSlice({
       localStorage.clear();
       cookies.remove("access-token");
 
-      if (router) router?.replace("/login");
-      else window.location.href = "/login";
+      if (router) router?.replace("/auth/candidate/login");
+      else window.location.href = "/auth/candidate/login";
     },
   },
   extraReducers: (builder) => {
