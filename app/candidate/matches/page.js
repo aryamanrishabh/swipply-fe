@@ -7,7 +7,7 @@ import { IoMdAddCircleOutline } from "react-icons/io";
 import TextInput from "@/Components/TextInput";
 import axiosInstance from "@/axiosInstance";
 import urls from "@/constants/urls";
-import { CANDIDATE } from "@/constants";
+import { CANDIDATE, CANDIDATE_TABLE } from "@/constants";
 import { useSelector } from "react-redux";
 
 const MatchCard = () => {
@@ -40,7 +40,7 @@ const CandidateMatchesPage = () => {
       const id = "6769";
 
       const res = await axiosInstance.get(
-        `${urls.match}?userId=${id}&type=${CANDIDATE}`
+        `${urls.match}?userId=${id}&type=${CANDIDATE_TABLE}`
       );
     } catch (error) {}
   };
