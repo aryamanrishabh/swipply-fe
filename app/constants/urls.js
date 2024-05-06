@@ -21,6 +21,7 @@ const urls = {
   updateCompanyProfile: `${companyRoute}/profile/createOrUpdate`,
   getJobRecommendations: `${apiURL}/recommend/jobs`,
   getCandidateRecommendations: `${apiURL}/recommend/candidates`,
+  getMessages: `${apiURL}/getMessages`,
 };
 
 export default urls;

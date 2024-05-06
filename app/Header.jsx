@@ -9,7 +9,7 @@ const Header = () => {
   if (path?.includes?.("auth")) return null;
 
   return (
-    <div className="flex h-16 min-h-16 items-center justify-center  bg-slate-500">
+    <div className="flex h-16 min-h-16 items-center justify-center  bg-blue-500">
       Header
     </div>
   );

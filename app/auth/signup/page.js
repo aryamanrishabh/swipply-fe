@@ -13,14 +13,14 @@ const SignupPage = () => {
         </h1>
 
         <Link href="/auth/signup/candidate">
-          <div className="flex w-80 h-20 py-4 px-6 items-center justify-between cursor-pointer rounded-sm bg-slate-200">
+          <div className="flex w-80 h-20 py-4 px-6 items-center justify-between cursor-pointer rounded-sm bg-blue-200">
             <span className="font-medium tracking-wide">Candidate</span>
             <FiChevronRight size="1.5rem" />
           </div>
         </Link>
 
         <Link href="/auth/signup/recruiter">
-          <div className="flex w-80 h-20 py-4 px-6 items-center justify-between cursor-pointer rounded-sm bg-slate-200">
+          <div className="flex w-80 h-20 py-4 px-6 items-center justify-between cursor-pointer rounded-sm bg-blue-200">
             <span className="font-medium tracking-wide">Recruiter</span>
             <FiChevronRight size="1.5rem" />
           </div>

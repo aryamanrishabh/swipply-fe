@@ -1,5 +1,5 @@
 export const SolidButton = (props) => {
-  let className = `w-fit py-2 px-7 text-sm font-semibold tracking-widest rounded-lg text-white bg-slate-500 border-[2px] border-slate-500 ${props.className}`;
+  let className = `w-fit py-2 px-7 text-sm font-semibold tracking-widest rounded-lg text-white bg-blue-500 border-[2px] border-slate-500 ${props.className}`;
   const disabledClassName = "opacity-60 pointer-events-none";
 
   if (props.disabled) className = `${className} ${disabledClassName}`;

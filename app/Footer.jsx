@@ -17,7 +17,7 @@ const Footer = () => {
   if (path?.includes?.("auth")) return null;
 
   return (
-    <div className="h-16 min-h-16 flex items-center justify-center gap-x-28 bg-slate-500">
+    <div className="h-16 min-h-16 flex items-center justify-center gap-x-28 bg-blue-500">
       <Link href={`/${usertype}/profile`}>
         <FiUser color="white" size="1.75rem" strokeWidth={2} />
       </Link>
