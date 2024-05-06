@@ -189,7 +189,7 @@ const CandidateRecommendationsPage = () => {
       const matchReceiver = candidateID;
 
       await axiosInstance.post(
-        `${urls.match}?matchInitiator=${matchInitiator}&matchReceiver=${matchReceiver}`
+        `${urls.match}?matchInitiator=${matchInitiator}&matchReceiver=${matchReceiver}&initiatorType=job&receiverType=candidate`
       );
     } catch (error) {
       console.log(error);

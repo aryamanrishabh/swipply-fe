@@ -139,7 +139,7 @@ const DashboardPage = () => {
       const matchInitiator = user?.id;
 
       await axiosInstance.post(
-        `${urls.match}?matchInitiator=${matchInitiator}&matchReceiver=${matchReceiver}`
+        `${urls.match}?matchInitiator=${matchInitiator}&matchReceiver=${matchReceiver}&initiatorType=candidate&receiverType=job`
       );
     } catch (error) {
       console.log(error);
