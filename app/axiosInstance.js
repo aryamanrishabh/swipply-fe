@@ -5,6 +5,7 @@ let tokenHeaders;
 const cookies = new Cookies();
 
 export const tokenKey = "@Token:";
+export const accessTokenKey = "x-access-token";
 
 // @Token: {
 //    access-token: tokenVal
@@ -26,7 +27,7 @@ const defaultConfig = {
 
 export const getTokenHeaders = async () => {
   try {
-    if (tokenHeaders && tokenHeaders["x-access-token"]) {
+    if (tokenHeaders && tokenHeaders[accessTokenKey]) {
       return tokenHeaders;
     }
 
@@ -66,8 +67,8 @@ const setTokenHeadersOnRequest = async (config) => {
 
     if (storeAuthTokensString) {
       let storeAuthTokens = JSON.parse(storeAuthTokensString);
-      if (storeAuthTokens && storeAuthTokens["x-access-token"]) {
-        const accessToken = storeAuthTokens["x-access-token"];
+      if (storeAuthTokens && storeAuthTokens[accessTokenKey]) {
+        const accessToken = storeAuthTokens[accessTokenKey];
         authHeader = { Authorization: `${accessToken}` };
       }
     }
@@ -112,7 +113,7 @@ const responseInterceptorOnError = (error) => {
       if (!window?.location?.pathname?.includes("/login")) {
         localStorage.clear();
 
-        window.location.href = "/login";
+        window.location.href = "/auth/login/candidate";
       }
     }
 

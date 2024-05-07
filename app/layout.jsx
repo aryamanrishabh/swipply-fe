@@ -5,6 +5,7 @@ import { PersistGate } from "redux-persist/integration/react";
 
 import { persistor } from "@redux/store";
 import ReduxProvider from "@redux/ReduxProvider";
+import WithAuth from "./WithAuth";
 
 import "./globals.css";
 
@@ -19,7 +20,7 @@ export default function RootLayout({ children }) {
       <body className={`${lato.className} h-screen w-screen flex flex-col`}>
         <ReduxProvider>
           <PersistGate loading={null} persistor={persistor}>
-            {children}
+            <WithAuth>{children}</WithAuth>
           </PersistGate>
         </ReduxProvider>
       </body>

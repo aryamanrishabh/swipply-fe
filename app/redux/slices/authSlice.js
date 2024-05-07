@@ -2,7 +2,7 @@ import Cookies from "universal-cookie";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import urls from "@/constants/urls";
-import axiosInstance, { tokenKey } from "@axiosInstance";
+import axiosInstance, { accessTokenKey, tokenKey } from "@axiosInstance";
 
 import { CANDIDATE } from "@/constants";
 
@@ -18,16 +18,23 @@ export const login = createAsyncThunk(
   "login",
   async (payload, { fulfillWithValue, rejectWithValue }) => {
     try {
-      const { uid, accessToken, usertype } = payload;
+      const { uid, accessToken, usertype, redirectLink } = payload;
 
       cookies.set("access-token", accessToken);
+      const token = {};
+      token[accessTokenKey] = accessToken;
+
+      localStorage.setItem(tokenKey, JSON.stringify(token));
 
       const url =
         usertype === CANDIDATE ? urls.candidateProfile : urls.recruiterProfile;
 
       const res = await axiosInstance.get(`${url}/${uid}`);
-      const profile = res?.data;
-      window.location.href = `/${usertype}/dashboard`;
+      const profile = res?.data || {};
+
+      if (redirectLink) window.location.href = redirectLink;
+      else window.location.href = `/${usertype}/dashboard`;
+
       return fulfillWithValue({ profile });
     } catch (error) {
       console.log(error, "Error in login");
@@ -73,8 +80,8 @@ const authSlice = createSlice({
       localStorage.clear();
       cookies.remove("access-token");
 
-      if (router) router?.replace("/auth/candidate/login");
-      else window.location.href = "/auth/candidate/login";
+      if (router) router?.replace("/auth/login/candidate");
+      else window.location.href = "/auth/login/candidate";
     },
   },
   extraReducers: (builder) => {
