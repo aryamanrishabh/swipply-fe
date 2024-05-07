@@ -12,14 +12,19 @@ import { userPictureS3Bucket } from "@/constants/variable";
 import useWebSocket from "react-use-websocket";
 
 const MatchCard = (props) => {
+  const imageS3Key =
+    props?.match?.receiver?.company?.imageS3Key ||
+    props?.match?.receiver?.profilePictureS3Key
+      .replaceAll(":", "%3A")
+      .replaceAll("+", "%2B");
   return (
     <div
       className="flex items-center w-full py-4 px-6 gap-x-4 border-b-2 cursor-pointer hover:bg-gray-100"
-      onClick={() => props.loadChat(props?.match?.receiver?.companyId)} // bug: multiple positions in same company
+      onClick={() => props.loadChat(props?.match?.receiver?.id)}
     >
       <div className="flex h-20 w-20 rounded-full overflow-hidden bg-gray-200">
         <img
-          src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${props?.match?.receiver?.company?.imageS3Key}`}
+          src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${imageS3Key}`}
           alt=""
           width={100}
           height={100}
@@ -69,15 +74,21 @@ const Chat = (props) => {
         owner: props.userId,
         receiver: props.receiver,
       });
-      props.setMessages((prev) =>
-        prev.concat({ message: e.target[0].value, sender: props.userId })
-      );
+      props.setMessages((prev) => {
+        if (!prev) {
+          prev = [];
+        }
+        return prev.concat({
+          message: e.target[0].value,
+          sender: props.userId,
+        });
+      });
     }
   };
 
-  // if (!props.messages) {
-  //   return <></>;
-  // }
+  //   if (!props.messages) {
+  //     return <></>;
+  //   }
 
   return (
     <>
@@ -127,7 +138,7 @@ const Chat = (props) => {
 const CandidateMatchesPage = () => {
   const user = useSelector((state) => state?.auth?.user);
   const router = usePathname();
-  const id = "6769";
+  const id = router.split("/")[3];
   const [matches, setMatches] = useState([]);
   const [messages, setMessages] = useState();
   const [receiver, setReceiver] = useState();
@@ -147,7 +158,7 @@ const CandidateMatchesPage = () => {
       );
       setMatches(res?.data || []);
     } catch (error) {
-      console.err(error);
+      console.err(err);
     }
   };
 
