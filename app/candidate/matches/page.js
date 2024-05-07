@@ -9,11 +9,9 @@ import { CANDIDATE, CANDIDATE_TABLE, JOB_TABLE } from "@/constants";
 import { useSelector } from "react-redux";
 import { usePathname } from "next/navigation";
 import { userPictureS3Bucket } from "@/constants/variable";
+import useWebSocket from "react-use-websocket";
 
 const MatchCard = (props) => {
-  console.log(
-    `https://${userPictureS3Bucket}.s3.amazonaws.com/${props?.match?.receiver?.company?.imageS3Key}`
-  );
   return (
     <div
       className="flex items-center w-full py-4 px-6 gap-x-4 border-b-2 cursor-pointer hover:bg-gray-100"
@@ -41,22 +39,88 @@ const MatchCard = (props) => {
 };
 
 const Chat = (props) => {
-  if (!props.messages || !props.messages.data || !props.messages.data.Items) {
+  const [socketUrl, setSocketUrl] = useState(
+    "wss://68m6yysrab.execute-api.us-east-1.amazonaws.com/dev"
+  );
+  const { sendJsonMessage, lastMessage } = useWebSocket(socketUrl);
+
+  useEffect(() => {
+    if (lastMessage !== null) {
+      props.setMessages((prev) =>
+        prev.concat({ message: lastMessage.data, sender: props.receiver })
+      );
+    }
+  }, [lastMessage]);
+
+  useEffect(() => {
+    if (props.receiver) {
+      setSocketUrl(
+        `wss://68m6yysrab.execute-api.us-east-1.amazonaws.com/dev?owner=${props.userId}&receiver=${props.receiver}`
+      );
+    }
+  }, [socketUrl, props.userId, props.receiver]);
+
+  const handleClickSendMessage = (e) => {
+    e.preventDefault();
+    if (e.target[0].value && e.target[0].value.length > 0) {
+      sendJsonMessage({
+        action: "sendMessage",
+        message: e.target[0].value,
+        owner: props.userId,
+        receiver: props.receiver,
+      });
+      props.setMessages((prev) =>
+        prev.concat({ message: e.target[0].value, sender: props.userId })
+      );
+    }
+  };
+
+  if (!props.messages) {
     return <></>;
   }
 
-  return props.messages?.data?.Items.map((message, index) => (
-    <p
-      key={index}
-      className={
-        props.userId === message?.sender
-          ? "flex flex-1 justify-end"
-          : "flex flex-1 justify-start"
-      }
-    >
-      {message?.message || ""}
-    </p>
-  ));
+  return (
+    <>
+      {props.messages.map((message, index) => (
+        <p
+          key={index}
+          className={
+            props.userId === message?.sender
+              ? "flex flex-1 justify-end"
+              : "flex flex-1 justify-start"
+          }
+        >
+          {message?.message || ""}
+        </p>
+      ))}
+      <form onSubmit={handleClickSendMessage}>
+        <label htmlFor="chat" className="sr-only">
+          Your message
+        </label>
+        <div className="flex items-center py-2 px-3 bg-white-50 rounded-lg dark:bg-white-700">
+          <textarea
+            id="chat"
+            rows="1"
+            className="block mx-4 p-2.5 w-full text-sm text-white-900 bg-white rounded-lg border border-white-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-white-800 dark:border-white-600 dark:placeholder-white-400 dark:text-gray dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Your message..."
+          ></textarea>
+          <button
+            type="submit"
+            className="inline-flex justify-center p-2 text-blue-600 rounded-full cursor-pointer hover:bg-blue-100 dark:text-blue-500 dark:hover:bg-white-600"
+          >
+            <svg
+              className="w-6 h-6 rotate-90"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </>
+  );
 };
 
 const CandidateMatchesPage = () => {
@@ -65,6 +129,7 @@ const CandidateMatchesPage = () => {
   const id = "6769";
   const [matches, setMatches] = useState([]);
   const [messages, setMessages] = useState();
+  const [receiver, setReceiver] = useState();
 
   useEffect(() => {
     getAllMatches();
@@ -81,17 +146,17 @@ const CandidateMatchesPage = () => {
       );
       setMatches(res?.data || []);
     } catch (error) {
-      console.log(err);
+      console.err(err);
     }
   };
 
   const loadChat = async (receiver) => {
     try {
+      setReceiver(receiver);
       const res = await axiosInstance.get(
         `${urls.getMessages}?owner=${id}&receiver=${receiver}`
       );
-      console.log("messages", res);
-      setMessages(res);
+      setMessages(res?.data?.Items);
     } catch (e) {
       console.error(e);
     }
@@ -113,7 +178,12 @@ const CandidateMatchesPage = () => {
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-y-16 p-8 max-h-full overflow-auto">
-        <Chat messages={messages} userId={id} />
+        <Chat
+          messages={messages}
+          userId={id}
+          receiver={receiver}
+          setMessages={setMessages}
+        />
       </div>
     </div>
   );
