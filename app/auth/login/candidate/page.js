@@ -9,6 +9,7 @@ import TextInput from "@Components/TextInput";
 import { SolidButton } from "@Components/Buttons";
 
 import { CANDIDATE } from "@/constants";
+import { login } from "@/redux/slices/authSlice";
 import candidatePool from "@/constants/candidatePool";
 
 const CandidateLoginPage = () => {
@@ -18,6 +19,7 @@ const CandidateLoginPage = () => {
     email: "",
     password: "",
   });
+  const [error, setError] = useState(false);
 
   const { email, password } = formData;
 
@@ -45,18 +47,20 @@ const CandidateLoginPage = () => {
 
     user.authenticateUser(authDetails, {
       onSuccess: (data) => {
+        setError(false);
         const idToken = data?.idToken;
 
         const usertype = CANDIDATE;
         const uid = idToken?.payload?.sub;
-        const accessKey = idToken?.jwtToken;
+        const accessToken = idToken?.jwtToken;
 
-        dispatch(login({ uid, accessKey, usertype }));
+        dispatch(login({ uid, accessToken, usertype }));
 
         console.log("Success: ", data);
       },
       onFailure: (err) => {
         console.log("Failure: ", err);
+        setError(true);
       },
     });
   };
@@ -68,11 +72,11 @@ const CandidateLoginPage = () => {
 
         <div className="flex flex-col gap-y-6">
           <div className="flex flex-col gap-y-2">
-            <label className="label">Email</label>
+            <label className="label">Email *</label>
             <TextInput name="email" value={email} onChange={handleFormInput} />
           </div>
           <div className="flex flex-col gap-y-2">
-            <label className="label">Password</label>
+            <label className="label">Password *</label>
             <TextInput
               name="password"
               value={password}
@@ -96,7 +100,7 @@ const CandidateLoginPage = () => {
 
       <Link
         href="/auth/login/recruiter"
-        className="text-xs underline underline-offset-2 tracking-wider font-semibold text-cyan-600"
+        className="w-fit text-xs underline underline-offset-2 tracking-wider font-semibold text-cyan-600"
       >
         ARE YOU A RECRUITER?
       </Link>

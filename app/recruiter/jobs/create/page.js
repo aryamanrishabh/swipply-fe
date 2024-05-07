@@ -13,6 +13,8 @@ import SelectDropdown from "@/Components/SelectDropdown";
 
 import { jobTypes } from "@/constants/jobTypes";
 import { locationTypes } from "@/constants/locationTypes";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
 const weights = Object.freeze([
   { label: "1", value: 1 },
@@ -28,6 +30,10 @@ const skillEntry = Object.freeze({
 });
 
 const CreateJobPage = () => {
+  const router = useRouter();
+  const user = useSelector((state) => state?.auth?.user);
+  const companyId = user?.companyId;
+
   const [jobData, setJobData] = useState({
     id: null,
     city: "",
@@ -74,9 +80,6 @@ const CreateJobPage = () => {
     !city ||
     !state ||
     !country;
-
-  // TODO remove
-  const id = "test-job-id";
 
   useEffect(() => {
     getPostingData();
@@ -139,14 +142,11 @@ const CreateJobPage = () => {
 
   const handleSubmit = async () => {
     try {
-      let payload = { ...jobData };
-      payload.companyId = "company-id";
-      payload.recruiterId = "recruiter-id";
-      payload.createdAt = "dummy time val";
+      if (!companyId || !user?.id) return;
 
-      // TODO ID fix
-      if (jobData?.id) payload.id = id;
-      else payload.id = null;
+      let payload = { ...jobData };
+      payload.companyId = companyId;
+      payload.recruiterId = user?.id;
 
       if (payload?.locationType)
         payload.locationType = payload.locationType?.value;
@@ -154,11 +154,14 @@ const CreateJobPage = () => {
       if (payload?.employmentType)
         payload.employmentType = payload.employmentType?.value;
 
-      // TODO filter skills
-
-      console.log(payload);
+      let skillEntries = [];
+      if (!!jobData?.skills?.length) {
+        skillEntries = jobData?.skills?.filter((skill) => !!skill?.label);
+      }
+      payload.skills = skillEntries;
 
       await axiosInstance.post(urls.createUpdateJobPosting, payload);
+      router.push("/recruiter/jobs");
     } catch (error) {
       console.log(error);
     }

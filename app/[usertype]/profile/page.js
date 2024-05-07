@@ -117,7 +117,10 @@ const ProfilePage = () => {
     mandatoryData;
 
   useEffect(() => {
-    getProfile();
+    if (user) getProfile(user);
+  }, [user]);
+
+  useEffect(() => {
     getCompanies();
   }, []);
 
@@ -130,13 +133,13 @@ const ProfilePage = () => {
     }
   }, [companies, queryCompanyId]);
 
-  const getProfile = async () => {
+  const getProfile = (user) => {
     try {
-      const id = "129";
-      const url = isRecruiter ? urls.recruiterProfile : urls.candidateProfile;
-      const res = await axiosInstance.get(`${url}/${id}`);
+      // const id = "129";
+      // const url = isRecruiter ? urls.recruiterProfile : urls.candidateProfile;
+      // const res = await axiosInstance.get(`${url}/${id}`);
 
-      const data = res?.data || {};
+      const data = user || {};
       if (data?.gender) {
         const genderVal = genders?.find(({ value }) => value === data?.gender);
         data.gender = genderVal;
@@ -244,8 +247,6 @@ const ProfilePage = () => {
 
   const handleResumeUpload = async (e) => {
     try {
-      // TODO remove
-      const user = { id: "129" };
       if (!user?.id) return;
 
       const file = e.target?.files?.[0];
@@ -272,16 +273,15 @@ const ProfilePage = () => {
 
   const handleSubmit = async () => {
     try {
-      // TODO
-      const id = "6769";
-      // const id = "test-" + usertype + "id";
+      if (!user?.id || !user?.createdAt) return;
+
       const url = isRecruiter
         ? urls.updateRecruiterProfile
         : urls.updateCandidateProfile;
 
       let payload = { ...mandatoryData };
-      payload.id = id;
-      payload.createdAt = "dummy time val";
+      payload.id = user?.id;
+      payload.createdAt = user?.createdAt;
       payload.gender = mandatoryData?.gender?.value || "";
 
       if (isRecruiter && companyId) {
@@ -306,6 +306,8 @@ const ProfilePage = () => {
     }
   };
 
+  const handleBack = () => router.back();
+
   const saveDisabled = !firstname || !lastname || !email || !phone || !gender;
 
   if (usertype !== CANDIDATE && usertype !== RECRUITER) return <div>404</div>;
@@ -317,6 +319,7 @@ const ProfilePage = () => {
           <div className="flex flex-col gap-y-2">
             <label className="label">First Name *</label>
             <TextInput
+              disabled
               name="firstname"
               value={firstname}
               onChange={handleMandatoryInput}
@@ -326,6 +329,7 @@ const ProfilePage = () => {
           <div className="flex flex-col gap-y-2">
             <label className="label">Last Name *</label>
             <TextInput
+              disabled
               name="lastname"
               value={lastname}
               onChange={handleMandatoryInput}
@@ -337,6 +341,7 @@ const ProfilePage = () => {
           <div className="flex flex-col gap-y-2">
             <label className="label">Email *</label>
             <TextInput
+              disabled
               name="email"
               value={email}
               onChange={handleMandatoryInput}
@@ -611,7 +616,6 @@ const ProfilePage = () => {
 
             <div className="flex flex-col gap-y-8 w-80">
               <h3 className="text-2xl font-semibold tracking-wide">Links</h3>
-              {/* TODO: type + input */}
               <div className="flex items-center gap-x-8">
                 <FaLinkedin color={LINKEDIN_BLUE} className="min-w-6 min-h-6" />
                 <TextInput
@@ -646,7 +650,7 @@ const ProfilePage = () => {
         )}
 
         <div className="flex items-center gap-x-8">
-          <OutlineButton>CANCEL</OutlineButton>
+          <OutlineButton onClick={handleBack}>CANCEL</OutlineButton>
           <SolidButton
             // disabled={saveDisabled}
             onClick={handleSubmit}

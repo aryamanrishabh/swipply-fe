@@ -35,7 +35,6 @@ const JobsPage = () => {
 
   const getJobPostings = async () => {
     try {
-      const companyId = "company-id";
       if (!companyId) return;
 
       const res = await axiosInstance.get(
@@ -50,8 +49,6 @@ const JobsPage = () => {
       setLoading(false);
     }
   };
-
-  console.log(selectedJobData);
 
   return (
     <div className="flex w-full h-full">

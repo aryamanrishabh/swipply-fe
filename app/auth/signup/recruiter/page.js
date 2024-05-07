@@ -2,19 +2,26 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useDispatch } from "react-redux";
+import { AuthenticationDetails, CognitoUser } from "amazon-cognito-identity-js";
 
 import TextInput from "@Components/TextInput";
 import { SolidButton } from "@Components/Buttons";
 
 import recruiterPool from "@/constants/recruiterPool";
+import { RECRUITER } from "@/constants";
+import { login } from "@/redux/slices/authSlice";
 
 const RecruiterSignupPage = () => {
+  const dispatch = useDispatch();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
     lastname: "",
     firstname: "",
   });
+  const [error, setError] = useState(false);
 
   const { email, firstname, lastname, password } = formData;
 
@@ -39,10 +46,51 @@ const RecruiterSignupPage = () => {
       ],
       null,
       (err, data) => {
-        if (err) console.log(err, "error");
-        console.log(data, "data");
+        if (err) {
+          setError(true);
+          console.log(err, "error");
+        } else {
+          setError(false);
+          handleLogin();
+        }
       }
     );
+  };
+
+  const handleLogin = () => {
+    try {
+      const user = new CognitoUser({
+        Username: email,
+        Pool: recruiterPool,
+      });
+
+      const authDetails = new AuthenticationDetails({
+        Username: email,
+        Password: password,
+      });
+
+      user.authenticateUser(authDetails, {
+        onSuccess: (data) => {
+          setError(false);
+          const idToken = data?.idToken;
+
+          const usertype = RECRUITER;
+          const uid = idToken?.payload?.sub;
+          const accessToken = idToken?.jwtToken;
+          const redirectLink = `/${usertype}/profile`;
+
+          dispatch(login({ uid, accessToken, usertype, redirectLink }));
+
+          console.log("Success: ", data);
+        },
+        onFailure: (err) => {
+          console.log("Failure: ", err);
+          setError(true);
+        },
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

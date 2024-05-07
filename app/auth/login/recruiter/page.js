@@ -10,6 +10,7 @@ import { SolidButton } from "@Components/Buttons";
 
 import { RECRUITER } from "@/constants";
 import recruiterPool from "@/constants/recruiterPool";
+import { login } from "@/redux/slices/authSlice";
 
 const RecruiterLoginPage = () => {
   const dispatch = useDispatch();
@@ -18,6 +19,7 @@ const RecruiterLoginPage = () => {
     email: "",
     password: "",
   });
+  const [error, setError] = useState(false);
 
   const { email, password } = formData;
 
@@ -45,18 +47,21 @@ const RecruiterLoginPage = () => {
 
     user.authenticateUser(authDetails, {
       onSuccess: (data) => {
+        setError(false);
         const idToken = data?.idToken;
 
         const usertype = RECRUITER;
         const uid = idToken?.payload?.sub;
-        const accessKey = idToken?.jwtToken;
+        const accessToken = idToken?.jwtToken;
+        const redirectLink = `/${usertype}/jobs`;
 
-        dispatch(login({ uid, accessKey, usertype }));
+        dispatch(login({ uid, accessToken, usertype, redirectLink }));
 
         console.log("Success: ", data);
       },
       onFailure: (err) => {
         console.log("Failure: ", err);
+        setError(true);
       },
     });
   };
@@ -68,11 +73,11 @@ const RecruiterLoginPage = () => {
 
         <div className="flex flex-col gap-y-6">
           <div className="flex flex-col gap-y-2">
-            <label className="label">Business Email</label>
+            <label className="label">Business Email *</label>
             <TextInput name="email" value={email} onChange={handleFormInput} />
           </div>
           <div className="flex flex-col gap-y-2">
-            <label className="label">Password</label>
+            <label className="label">Password *</label>
             <TextInput
               name="password"
               value={password}
@@ -96,7 +101,7 @@ const RecruiterLoginPage = () => {
 
       <Link
         href="/auth/login/candidate"
-        className="text-xs underline underline-offset-2 tracking-wider font-semibold text-cyan-600"
+        className="w-fit text-xs underline underline-offset-2 tracking-wider font-semibold text-cyan-600"
       >
         ARE YOU A CANDIDATE?
       </Link>
