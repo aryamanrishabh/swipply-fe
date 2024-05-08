@@ -74,8 +74,6 @@ const authSlice = createSlice({
     logout: (state, { payload }) => {
       const { router } = payload || {};
 
-      const redirectUrl = `/auth/login/${state?.usertype || "candidate"}`;
-
       state.user = initialState.user;
       state.error = initialState.error;
       state.loading = initialState.loading;
@@ -84,8 +82,8 @@ const authSlice = createSlice({
       localStorage.clear();
       cookies.remove("access-token");
 
-      if (router) router?.replace(redirectUrl);
-      else window.location.href = redirectUrl;
+      if (router) router?.replace("/auth/login/candidate");
+      else window.location.href = "/auth/login/candidate";
     },
   },
   extraReducers: (builder) => {
