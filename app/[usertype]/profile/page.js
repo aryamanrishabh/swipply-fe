@@ -118,7 +118,7 @@ const ProfilePage = () => {
 
   useEffect(() => {
     if (user) getProfile(user);
-  }, [user]);
+  }, [user, companies]);
 
   useEffect(() => {
     getCompanies();
@@ -164,7 +164,12 @@ const ProfilePage = () => {
       mandatoryDataCopy.id = data?.id || null;
       mandatoryDataCopy.createdAt = data?.createdAt || null;
 
-      if (data?.companyId) mandatoryData.companyId = data?.companyId;
+      if (isRecruiter && data?.companyId) {
+        const companyVal = companies?.find(
+          ({ value }) => value === data?.companyId
+        );
+        mandatoryDataCopy.companyId = companyVal;
+      }
 
       const conditionalDataCopy = {};
       Object?.keys(conditionalData)?.forEach((key) => {
@@ -398,13 +403,12 @@ const ProfilePage = () => {
             <SelectDropdown
               value={companyId}
               options={companies}
-              isDisabled={!companies || !!companyId}
+              isDisabled={!companies || !!user?.companyId}
               onChange={(e) => {
                 if (e?.value === CREATE_ORG) {
                   router.push("/company/profile");
                 } else {
-                  const companyId = e?.id;
-                  setMandatoryData((prev) => ({ ...prev, companyId }));
+                  setMandatoryData((prev) => ({ ...prev, companyId: e }));
                 }
               }}
             />
