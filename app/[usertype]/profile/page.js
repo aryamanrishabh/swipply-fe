@@ -139,7 +139,7 @@ const ProfilePage = () => {
       // const url = isRecruiter ? urls.recruiterProfile : urls.candidateProfile;
       // const res = await axiosInstance.get(`${url}/${id}`);
 
-      const data = user || {};
+      const data = structuredClone(user) || {};
       if (data?.gender) {
         const genderVal = genders?.find(({ value }) => value === data?.gender);
         data.gender = genderVal;
@@ -173,9 +173,11 @@ const ProfilePage = () => {
       conditionalDataCopy.dob = data?.dob || null;
       conditionalDataCopy.graduationDate = data?.graduationDate || null;
       conditionalDataCopy.lookingForJobType = data?.lookingForJobType || null;
+      conditionalDataCopy.preferredLocationType =
+        data?.preferredLocationType || null;
 
       setMandatoryData(mandatoryDataCopy);
-      setConditionalData(conditionalData);
+      setConditionalData(conditionalDataCopy);
     } catch (error) {
       console.log(error);
     }
@@ -282,7 +284,10 @@ const ProfilePage = () => {
       let payload = { ...mandatoryData };
       payload.id = user?.id;
       payload.createdAt = user?.createdAt;
-      payload.gender = mandatoryData?.gender?.value || "";
+
+      if (payload?.gender) {
+        payload.gender = payload?.gender?.value;
+      }
 
       if (isRecruiter && companyId) {
         payload.companyId = companyId?.value;
@@ -292,10 +297,13 @@ const ProfilePage = () => {
         payload = { ...payload, ...conditionalData };
 
         if (payload?.dob) payload.dob = dayjs(payload?.dob)?.utc()?.format();
+
         if (payload?.lookingForJobType)
           payload.lookingForJobType = payload?.lookingForJobType?.value;
+
+        if (payload?.preferredLocationType)
+          payload.preferredLocationType = payload?.preferredLocationType?.value;
       }
-      console.log(payload, "pload");
 
       const res = await axiosInstance.post(url, payload);
       const profile = res?.data?.body || {};
