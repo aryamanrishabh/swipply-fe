@@ -12,6 +12,7 @@ const initialState = {
   user: null,
   error: null,
   loading: false,
+  usertype: null,
 };
 
 export const login = createAsyncThunk(
@@ -35,7 +36,7 @@ export const login = createAsyncThunk(
       if (redirectLink) window.location.href = redirectLink;
       else window.location.href = `/${usertype}/dashboard`;
 
-      return fulfillWithValue({ profile });
+      return fulfillWithValue({ profile, usertype });
     } catch (error) {
       console.log(error, "Error in login");
       return rejectWithValue(error?.response?.data?.message);
@@ -73,15 +74,18 @@ const authSlice = createSlice({
     logout: (state, { payload }) => {
       const { router } = payload || {};
 
+      const redirectUrl = `/auth/login/${state?.usertype || "candidate"}`;
+
       state.user = initialState.user;
       state.error = initialState.error;
       state.loading = initialState.loading;
+      state.usertype = initialState.usertype;
 
       localStorage.clear();
       cookies.remove("access-token");
 
-      if (router) router?.replace("/auth/login/candidate");
-      else window.location.href = "/auth/login/candidate";
+      if (router) router?.replace(redirectUrl);
+      else window.location.href = redirectUrl;
     },
   },
   extraReducers: (builder) => {
@@ -90,9 +94,10 @@ const authSlice = createSlice({
     });
 
     builder.addCase(login.fulfilled, (state, { payload }) => {
-      const { profile } = payload || {};
+      const { profile, usertype } = payload || {};
 
-      if (payload) state.user = profile;
+      if (payload?.profile) state.user = profile;
+      if (payload?.usertype) state.usertype = usertype;
 
       state.error = initialState.error;
       state.loading = initialState.loading;
@@ -101,6 +106,7 @@ const authSlice = createSlice({
     builder.addCase(login.rejected, (state, { error }) => {
       if (error) state.error = error;
       state.loading = initialState.loading;
+      state.usertype = initialState.usertype;
     });
 
     builder.addCase(validateToken.pending, (state) => {
