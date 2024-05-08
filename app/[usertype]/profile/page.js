@@ -84,6 +84,7 @@ const ProfilePage = () => {
   });
   const [companies, setCompanies] = useState(null);
   const [showDobPicker, setShowDobPicker] = useState(false);
+  const [companyLoading, setCompanyLoading] = useState(true);
   const [showGradDatePicker, setShowGradDatePicker] = useState(false);
 
   const isRecruiter = usertype === RECRUITER;
@@ -130,6 +131,7 @@ const ProfilePage = () => {
         ({ value }) => value === queryCompanyId
       );
       setMandatoryData((prev) => ({ ...prev, companyId: companyVal }));
+      setCompanyLoading(false);
     }
   }, [companies, queryCompanyId]);
 
@@ -192,6 +194,8 @@ const ProfilePage = () => {
     try {
       if (isCandidate || !!companyId) return;
 
+      setCompanyLoading(true);
+
       const res = await axiosInstance.get(urls.getAllCompanies);
       const data = res?.data?.body || [];
 
@@ -205,6 +209,8 @@ const ProfilePage = () => {
       setCompanies(entries);
     } catch (error) {
       console.log(error);
+    } finally {
+      setCompanyLoading(false);
     }
   };
 
@@ -403,6 +409,7 @@ const ProfilePage = () => {
             <SelectDropdown
               value={companyId}
               options={companies}
+              isLoading={companyLoading}
               isDisabled={!companies || !!user?.companyId}
               onChange={(e) => {
                 if (e?.value === CREATE_ORG) {
@@ -542,6 +549,7 @@ const ProfilePage = () => {
                     className="w-36"
                     name="minCompensation"
                     value={minCompensation}
+                    onChange={handleFormInput}
                     style={{ minWidth: "unset" }}
                   />
                   <TextInput
@@ -550,6 +558,7 @@ const ProfilePage = () => {
                     className="w-36"
                     name="maxCompensation"
                     value={maxCompensation}
+                    onChange={handleFormInput}
                     style={{ minWidth: "unset" }}
                   />
                 </div>
