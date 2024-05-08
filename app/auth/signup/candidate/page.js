@@ -25,6 +25,8 @@ const CandidateSignupPage = () => {
 
   const { email, firstname, lastname, password } = formData;
 
+  const saveDisabled = !email || !firstname || !lastname || !password;
+
   const handleFormInput = (e) => {
     try {
       const { name, value } = e.target;
@@ -134,7 +136,9 @@ const CandidateSignupPage = () => {
           </div>
         </div>
 
-        <SolidButton onClick={handleSubmit}>Sign Up</SolidButton>
+        <SolidButton disabled={saveDisabled} onClick={handleSubmit}>
+          Sign Up
+        </SolidButton>
       </div>
 
       <span className="text-sm">
