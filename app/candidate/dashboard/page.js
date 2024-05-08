@@ -88,7 +88,7 @@ const DashboardPage = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [totalPages, setTotalPages] = useState(1);
-  const [recommendedJobs, setRecommendedJobs] = useState([...dummyJobs]);
+  const [recommendedJobs, setRecommendedJobs] = useState([]);
 
   const previousPage = usePrevious(page);
   const topRecommendation = recommendedJobs?.[0];
