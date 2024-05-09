@@ -56,12 +56,13 @@ const CandidateBody = ({
         <FiLink size="1.25rem" className="cursor-pointer" strokeWidth={2.5} />
       </div>
 
-      {/* TODO fix s3 link */}
       {!!resumeKey && (
         <a
           target="_blank"
           rel="noreferrer"
-          href={`https://${candidateResumeS3Bucket}.s3.amazonaws.com/${resumeKey}`}
+          href={`https://${candidateResumeS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+            resumeKey
+          )}`}
         >
           <div className="flex flex-col items-center cursor-pointer gap-y-1">
             <FaRegFilePdf size="1.5rem" className="text-gray-700" />
