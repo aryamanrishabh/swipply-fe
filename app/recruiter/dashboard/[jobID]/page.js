@@ -47,13 +47,31 @@ const CandidateBody = ({
   <div className="flex flex-col gap-y-6">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-x-4">
-        <IoLogoLinkedin
-          size="1.75rem"
-          color={LINKEDIN_BLUE}
-          className="cursor-pointer"
-        />
-        <IoLogoGithub size="1.5rem" className="cursor-pointer" />
-        <FiLink size="1.25rem" className="cursor-pointer" strokeWidth={2.5} />
+        {!!linkedin && (
+          <a target="_blank" href={linkedin}>
+            <IoLogoLinkedin
+              size="1.75rem"
+              color={LINKEDIN_BLUE}
+              className="cursor-pointer"
+            />
+          </a>
+        )}
+
+        {!!github && (
+          <a target="_blank" href={github}>
+            <IoLogoGithub size="1.5rem" className="cursor-pointer" />
+          </a>
+        )}
+
+        {!!portfolio && (
+          <a target="_blank" href={portfolio}>
+            <FiLink
+              size="1.25rem"
+              className="cursor-pointer"
+              strokeWidth={2.5}
+            />
+          </a>
+        )}
       </div>
 
       {!!resumeKey && (
