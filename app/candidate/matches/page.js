@@ -127,7 +127,6 @@ const Chat = (props) => {
 const CandidateMatchesPage = () => {
   const user = useSelector((state) => state?.auth?.user);
   const router = usePathname();
-  const id = "6769";
   const [matches, setMatches] = useState([]);
   const [messages, setMessages] = useState();
   const [receiver, setReceiver] = useState();
@@ -138,10 +137,10 @@ const CandidateMatchesPage = () => {
 
   const getAllMatches = async () => {
     try {
-      // if(!user?.id) return;
+      if (!user?.id) return;
 
       const res = await axiosInstance.get(
-        `${urls.match}?userId=${id}&type=${
+        `${urls.match}?userId=${user.id}&type=${
           router.toLowerCase().includes(CANDIDATE) ? CANDIDATE_TABLE : JOB_TABLE
         }`
       );
@@ -155,7 +154,7 @@ const CandidateMatchesPage = () => {
     try {
       setReceiver(receiver);
       const res = await axiosInstance.get(
-        `${urls.getMessages}?owner=${id}&receiver=${receiver}`
+        `${urls.getMessages}?owner=${user.id}&receiver=${receiver}`
       );
       setMessages(res?.data?.Items);
     } catch (e) {
@@ -181,7 +180,7 @@ const CandidateMatchesPage = () => {
       <div className="flex flex-1 flex-col gap-y-16 p-8 max-h-full overflow-auto">
         <Chat
           messages={messages}
-          userId={id}
+          userId={user.id}
           receiver={receiver}
           setMessages={setMessages}
         />
