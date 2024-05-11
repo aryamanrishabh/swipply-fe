@@ -132,7 +132,6 @@ const DashboardPage = () => {
 
   const swipeRight = async (jobID) => {
     try {
-      const user = { id: "6769" };
       if (!user?.id || !jobID) return;
 
       const matchReceiver = jobID;
@@ -148,8 +147,8 @@ const DashboardPage = () => {
 
   const getJobRecommendations = async () => {
     try {
-      // if (!user?.id) return;
-      const id = "6769";
+      if (!user?.id) return;
+      const id = user.id;
       let ignoreIds = [];
 
       try {
