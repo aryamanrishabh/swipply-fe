@@ -15,7 +15,7 @@ const MatchCard = (props) => {
   return (
     <div
       className="flex items-center w-full py-4 px-6 gap-x-4 border-b-2 cursor-pointer hover:bg-gray-100"
-      onClick={() => props.loadChat(props?.match?.receiver?.companyId)} // bug: multiple positions in same company
+      onClick={() => props.loadChat(props?.match?.receiver?.id)} // bug: multiple positions in same company
     >
       <div className="flex h-20 w-20 rounded-full overflow-hidden bg-gray-200">
         <img
