@@ -14,6 +14,7 @@ import { usePrevious } from "@/hooks/usePrevious";
 import { LINKEDIN_BLUE } from "@/constants/colors";
 import { candidateResumeS3Bucket } from "@/constants/variable";
 import { CANDIDATE, IGNORE_CANDIDATE_IDS, RECRUITER } from "@/constants";
+import { LEFT, RIGHT } from "@/constants/swipeDirections";
 
 const CandidateHeader = ({ city, state, firstname, lastname, university }) => (
   <div className="flex flex-col gap-y-1">

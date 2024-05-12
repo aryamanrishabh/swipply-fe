@@ -19,7 +19,9 @@ const MatchCard = (props) => {
     >
       <div className="flex h-20 w-20 rounded-full overflow-hidden bg-gray-200">
         <img
-          src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${props?.match?.receiver?.company?.imageS3Key}`}
+          src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+            props?.match?.receiver?.company?.imageS3Key
+          )}`}
           alt=""
           width={100}
           height={100}

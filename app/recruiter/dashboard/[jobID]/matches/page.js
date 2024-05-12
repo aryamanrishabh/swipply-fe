@@ -14,9 +14,7 @@ import useWebSocket from "react-use-websocket";
 const MatchCard = (props) => {
   const imageS3Key =
     props?.match?.receiver?.company?.imageS3Key ||
-    props?.match?.receiver?.profilePictureS3Key
-      .replaceAll(":", "%3A")
-      .replaceAll("+", "%2B");
+    props?.match?.receiver?.profilePictureS3Key;
   return (
     <div
       className="flex items-center w-full py-4 px-6 gap-x-4 border-b-2 cursor-pointer hover:bg-gray-100"
@@ -24,7 +22,9 @@ const MatchCard = (props) => {
     >
       <div className="flex h-20 w-20 rounded-full overflow-hidden bg-gray-200">
         <img
-          src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${imageS3Key}`}
+          src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+            imageS3Key
+          )}`}
           alt=""
           width={100}
           height={100}

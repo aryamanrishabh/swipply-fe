@@ -81,6 +81,7 @@ const ProfilePage = () => {
     lookingForJobType: null,
     currentOrganization: "",
     preferredLocationType: null,
+    profilePictureS3Key: "",
   });
   const [companies, setCompanies] = useState(null);
   const [showDobPicker, setShowDobPicker] = useState(false);
@@ -113,6 +114,7 @@ const ProfilePage = () => {
     lookingForJobType,
     currentOrganization,
     preferredLocationType,
+    profilePictureS3Key,
   } = conditionalData;
   const { email, phone, gender, lastname, firstname, countrycode, companyId } =
     mandatoryData;
@@ -245,14 +247,18 @@ const ProfilePage = () => {
 
       if (!file) return;
 
-      const res = await axiosInstance.post(
-        `${urls.uploadProfilePicture}?id=${user?.id}&type=${usertype}`,
+      await axiosInstance.post(
+        `${urls.uploadProfilePicture}?userId=${user?.id}&type=${usertype}s`,
         file,
         {
           headers: { "Content-Type": file?.type },
         }
       );
-      // TODO add get s3key api call
+      const res = await axiosInstance.get(
+        `${urls.uploadProfilePicture}?userId=${user?.id}&type=${usertype}s`
+      );
+      const profilePictureS3Key = res?.data;
+      setConditionalData((prev) => ({ ...prev, profilePictureS3Key }));
     } catch (error) {
       console.log(error);
     }
@@ -685,7 +691,18 @@ const ProfilePage = () => {
           onClick={() => inputRef?.current?.click()}
           className="flex h-32 w-32 rounded-full bg-gray-500 items-center justify-center cursor-pointer relative overflow-hidden"
         >
-          <FiUser color="white" size="5rem" />
+          {conditionalData.profilePictureS3Key ? (
+            <img
+              src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+                conditionalData.profilePictureS3Key
+              )}`}
+              alt=""
+              width={100}
+              height={100}
+            />
+          ) : (
+            <FiUser color="white" size="5rem" />
+          )}
           <div className="flex opacity-0 transition w-full h-full absolute backdrop-brightness-50 hover:opacity-85 items-center justify-center">
             <span className="text-xl font-semibold text-white">
               Upload <br /> Picture
