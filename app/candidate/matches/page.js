@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { usePathname } from "next/navigation";
 import { userPictureS3Bucket } from "@/constants/variable";
 import useWebSocket from "react-use-websocket";
+import Image from "next/image";
 
 const MatchCard = (props) => {
   return (
@@ -18,11 +19,11 @@ const MatchCard = (props) => {
       onClick={() => props.loadChat(props?.match?.receiver?.id)} // bug: multiple positions in same company
     >
       <div className="flex h-20 w-20 rounded-full overflow-hidden bg-gray-200">
-        <img
+        <Image
           src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
             props?.match?.receiver?.company?.imageS3Key
           )}`}
-          alt=""
+          alt="Profile picture"
           width={100}
           height={100}
         />
@@ -82,25 +83,37 @@ const Chat = (props) => {
   // }
 
   return (
-    <>
-      {props.messages &&
-        props.messages.map((message, index) => (
-          <p
-            key={index}
+    <div className="flex flex-col w-full h-full">
+      <div
+        style={{ maxHeight: "calc(100% - 58px)" }}
+        className="flex flex-col flex-1 overflow-auto pb-6"
+      >
+        {props?.messages?.map((message) => (
+          <div
+            key={message?.id}
             className={
-              props.userId === message?.sender
-                ? "flex flex-1 justify-end"
-                : "flex flex-1 justify-start"
+              props?.userId === message?.sender
+                ? "flex w-full justify-end"
+                : "flex w-full justify-start"
             }
           >
-            {message?.message || ""}
-          </p>
+            <p
+              className={
+                props?.userId === message?.sender
+                  ? "py-2 px-3 rounded-lg rounded-br-none justify-end bg-gray-200 tracking-wide"
+                  : "py-2 px-3 rounded-lg rounded-bl-none justify-end bg-gray-200 tracking-wide"
+              }
+            >
+              {message?.message || ""}
+            </p>
+          </div>
         ))}
+      </div>
       <form onSubmit={handleClickSendMessage}>
         <label htmlFor="chat" className="sr-only">
           Your message
         </label>
-        <div className="flex items-center py-2 px-3 bg-white-50 rounded-lg dark:bg-white-700">
+        <div className="flex items-center py-2 px-3 bg-white-50 rounded-lg dark:bg-white-700 h-[58px]">
           <textarea
             id="chat"
             rows="1"
@@ -122,7 +135,7 @@ const Chat = (props) => {
           </button>
         </div>
       </form>
-    </>
+    </div>
   );
 };
 

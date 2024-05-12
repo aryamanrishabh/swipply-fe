@@ -79,6 +79,7 @@ const RecruiterLoginPage = () => {
           <div className="flex flex-col gap-y-2">
             <label className="label">Password *</label>
             <TextInput
+              type="password"
               name="password"
               value={password}
               onChange={handleFormInput}

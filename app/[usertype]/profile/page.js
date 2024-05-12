@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import dayjs from "dayjs";
+import Image from "next/image";
 import utc from "dayjs/plugin/utc";
 import { FiUser } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
@@ -326,6 +327,11 @@ const ProfilePage = () => {
       const profile = res?.data?.body || {};
 
       dispatch(setUserData(profile));
+
+      let redirectLink = `/${usertype}/dashboard`;
+      if (isRecruiter) redirectLink = `/${usertype}/jobs`;
+
+      router.push(redirectLink);
     } catch (error) {
       console.log(error);
     }
@@ -471,6 +477,20 @@ const ProfilePage = () => {
             </div>
 
             <div className="flex flex-col gap-y-2">
+              {!!resumeS3Key && (
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href={`https://${candidateResumeS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+                    resumeS3Key
+                  )}`}
+                  className="w-fit ml-2"
+                >
+                  <span className="text-sm underline underline-offset-1 font-bold tracking-widest text-cyan-600">
+                    PREVIEW
+                  </span>
+                </a>
+              )}
               <OutlineButton
                 className="!rounded-full"
                 onClick={() => resumeInput?.current?.click()}
@@ -692,13 +712,14 @@ const ProfilePage = () => {
           className="flex h-32 w-32 rounded-full bg-gray-500 items-center justify-center cursor-pointer relative overflow-hidden"
         >
           {conditionalData.profilePictureS3Key ? (
-            <img
+            <Image
+              alt="Profile picture"
               src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
                 conditionalData.profilePictureS3Key
               )}`}
-              alt=""
               width={100}
               height={100}
+              objectFit="cover"
             />
           ) : (
             <FiUser color="white" size="5rem" />
