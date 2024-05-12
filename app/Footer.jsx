@@ -2,17 +2,23 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { FiUser, FiGrid, FiMessageSquare } from "react-icons/fi";
 
 import { CANDIDATE, COMPANY, RECRUITER } from "./constants";
 
 const Footer = () => {
   const path = usePathname();
+  const params = useParams();
   const isCandidate = path?.includes?.(CANDIDATE);
   const isRecruiter = path?.includes?.(COMPANY) || path?.includes?.(RECRUITER);
 
   const usertype = isCandidate ? CANDIDATE : RECRUITER;
+  let matchesLink = `/${usertype}/matches`;
+
+  if (isRecruiter && params && params.jobID) {
+    matchesLink = `/${usertype}/dashboard/${params.jobID}/matches`
+  }
 
   if (path?.includes?.("auth")) return null;
 
@@ -26,9 +32,9 @@ const Footer = () => {
         <FiGrid color="white" size="1.75rem" strokeWidth={2} />
       </Link>
 
-      <Link href={`/${usertype}/matches`}>
+      {isCandidate || !!params?.jobID && <Link href={matchesLink}>
         <FiMessageSquare color="white" size="1.75rem" strokeWidth={2} />
-      </Link>
+      </Link>}
     </div>
   );
 };
