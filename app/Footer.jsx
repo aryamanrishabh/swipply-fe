@@ -32,7 +32,7 @@ const Footer = () => {
         <FiGrid color="white" size="1.75rem" strokeWidth={2} />
       </Link>
 
-      {isCandidate || !!params?.jobID && <Link href={matchesLink}>
+      {(isCandidate || !!params?.jobID) && <Link href={matchesLink}>
         <FiMessageSquare color="white" size="1.75rem" strokeWidth={2} />
       </Link>}
     </div>
