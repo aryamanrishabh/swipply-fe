@@ -174,9 +174,11 @@ const CandidateMatchesPage = () => {
         </div>
 
         <div className="flex flex-col overflow-auto max-h-[calc(100% - 10rem)]">
-          {matches?.map((match, index) => (
-            <MatchCard key={index} match={match} loadChat={loadChat} />
-          ))}
+          {matches
+            ?.filter((match) => match?.fulfilled == "1")
+            ?.map((match, index) => (
+              <MatchCard key={index} match={match} loadChat={loadChat} />
+            ))}
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-y-16 p-8 max-h-full overflow-auto">
