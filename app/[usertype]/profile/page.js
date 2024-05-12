@@ -720,9 +720,10 @@ const ProfilePage = () => {
               src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
                 conditionalData?.profilePictureS3Key
               )}`}
-              width={100}
-              height={100}
-              objectFit="cover"
+              width={128}
+              height={128}
+              objectFit="contain"
+              className="min-w-full min-h-full"
             />
           ) : (
             <FiUser color="white" size="5rem" />

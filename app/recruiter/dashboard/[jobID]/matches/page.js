@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import { usePathname } from "next/navigation";
 import { userPictureS3Bucket } from "@/constants/variable";
 import useWebSocket from "react-use-websocket";
+import Image from "next/image";
 
 const MatchCard = (props) => {
   const imageS3Key =
@@ -21,13 +22,15 @@ const MatchCard = (props) => {
       onClick={() => props.loadChat(props?.match?.receiver?.id)}
     >
       <div className="flex h-20 w-20 rounded-full overflow-hidden bg-gray-200">
-        <img
+        <Image
           src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
             imageS3Key
           )}`}
           alt=""
-          width={100}
-          height={100}
+          width={80}
+          height={80}
+          objectFit="contain"
+          className="min-w-full min-h-full"
         />
       </div>
 

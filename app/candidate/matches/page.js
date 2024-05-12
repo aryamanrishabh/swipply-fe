@@ -24,8 +24,10 @@ const MatchCard = (props) => {
             props?.match?.receiver?.company?.imageS3Key
           )}`}
           alt="Profile picture"
-          width={100}
-          height={100}
+          width={80}
+          height={80}
+          objectFit="contain"
+          className="min-w-full min-h-full"
         />
       </div>
 
