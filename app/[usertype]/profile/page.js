@@ -140,14 +140,14 @@ const ProfilePage = () => {
 
   const getProfile = async () => {
     try {
-      // const id = "129";
       if (!user?.id) {
         return;
       }
       const url = isRecruiter ? urls.recruiterProfile : urls.candidateProfile;
-      const res = await axiosInstance.get(`${url}/${id}`);
+      const res = await axiosInstance.get(`${url}/${user?.id}`);
+      const profile = res?.data || {};
 
-      const data = structuredClone(user) || {};
+      const data = structuredClone(profile) || {};
       if (data?.gender) {
         const genderVal = genders?.find(({ value }) => value === data?.gender);
         data.gender = genderVal;
