@@ -33,7 +33,7 @@ const MatchCard = (props) => {
 
       <div className="flex flex-col gap-y-1">
         <h2 className="text-lg font-semibold">
-          {props?.match?.receiver?.company?.name || `Unknown`}
+          {props?.match?.receiver?.firstname || `Unknown`}
         </h2>
         {/* <span className="text-sm text-gray-500">
           Congratulations on getting
