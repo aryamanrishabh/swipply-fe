@@ -121,7 +121,7 @@ const ProfilePage = () => {
     mandatoryData;
 
   useEffect(() => {
-    if (user) getProfile(user);
+    getProfile();
   }, [user, companies]);
 
   useEffect(() => {
@@ -138,11 +138,14 @@ const ProfilePage = () => {
     }
   }, [companies, queryCompanyId]);
 
-  const getProfile = (user) => {
+  const getProfile = async () => {
     try {
       // const id = "129";
-      // const url = isRecruiter ? urls.recruiterProfile : urls.candidateProfile;
-      // const res = await axiosInstance.get(`${url}/${id}`);
+      if (!user?.id) {
+        return;
+      }
+      const url = isRecruiter ? urls.recruiterProfile : urls.candidateProfile;
+      const res = await axiosInstance.get(`${url}/${id}`);
 
       const data = structuredClone(user) || {};
       if (data?.gender) {
