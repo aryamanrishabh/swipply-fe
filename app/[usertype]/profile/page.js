@@ -711,11 +711,11 @@ const ProfilePage = () => {
           onClick={() => inputRef?.current?.click()}
           className="flex h-32 w-32 rounded-full bg-gray-500 items-center justify-center cursor-pointer relative overflow-hidden"
         >
-          {conditionalData.profilePictureS3Key ? (
+          {conditionalData?.profilePictureS3Key ? (
             <Image
               alt="Profile picture"
               src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
-                conditionalData.profilePictureS3Key
+                conditionalData?.profilePictureS3Key
               )}`}
               width={100}
               height={100}
