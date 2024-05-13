@@ -19,6 +19,7 @@ import { CANDIDATE, IGNORE_JOB_IDS, RECRUITER } from "@/constants";
 import { dummyJobs } from "@/dummyData/recommendedJobs";
 import Image from "next/image";
 import { userPictureS3Bucket } from "@/constants/variable";
+import Loader from "@/Components/Loader";
 
 const RecruiterHeader = ({ title, city, state }) => (
   <div className="flex flex-col gap-y-1">
@@ -163,7 +164,8 @@ const DashboardPage = () => {
   const getJobRecommendations = async () => {
     try {
       if (!user?.id) return;
-      const id = user.id;
+      setLoading(true);
+      const id = user?.id;
       let ignoreIds = [];
 
       try {
@@ -214,9 +216,15 @@ const DashboardPage = () => {
 
       <div className="flex w-1/2 h-full py-8 px-12 justify-center">
         <div className="flex relative w-full h-full max-w-[42rem] justify-center">
-          {recommendedJobs?.map((job, i) => (
-            <JobCard i={i} key={i} data={job} />
-          ))}
+          {loading ? (
+            <div className="flex flex-1 items-center justify-center">
+              <Loader />
+            </div>
+          ) : (
+            recommendedJobs?.map((job, i) => (
+              <JobCard i={i} key={i} data={job} />
+            ))
+          )}
         </div>
       </div>
 

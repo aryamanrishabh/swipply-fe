@@ -19,6 +19,7 @@ import {
 import { CANDIDATE, IGNORE_CANDIDATE_IDS, RECRUITER } from "@/constants";
 import { LEFT, RIGHT } from "@/constants/swipeDirections";
 import Image from "next/image";
+import Loader from "@/Components/Loader";
 
 const CandidateHeader = ({ city, state, firstname, lastname, university }) => (
   <div className="flex flex-col gap-y-1">
@@ -242,7 +243,7 @@ const CandidateRecommendationsPage = () => {
   const getCandidateRecommendations = async () => {
     try {
       if (!jobID) return;
-
+      setLoading(true);
       let ignoreIds = [];
       let ignoreIdsObj = {};
 
@@ -300,9 +301,15 @@ const CandidateRecommendationsPage = () => {
 
       <div className="flex w-1/2 h-full py-8 px-12 justify-center">
         <div className="flex relative w-full h-full max-w-[42rem] justify-center">
-          {recommendedCandidates?.map((candidate, i) => (
-            <CandidateCard i={i} key={i} data={candidate} />
-          ))}
+          {loading ? (
+            <div className="flex flex-1 items-center justify-center">
+              <Loader />
+            </div>
+          ) : (
+            recommendedCandidates?.map((candidate, i) => (
+              <CandidateCard i={i} key={i} data={candidate} />
+            ))
+          )}
         </div>
       </div>
 

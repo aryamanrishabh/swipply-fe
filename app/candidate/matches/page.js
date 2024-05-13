@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
 import { userPictureS3Bucket } from "@/constants/variable";
 import useWebSocket from "react-use-websocket";
 import Image from "next/image";
+import Loader from "@/Components/Loader";
 
 const MatchCard = (props) => {
   return (
@@ -80,9 +81,9 @@ const Chat = (props) => {
     }
   };
 
-  // if (!props.messages) {
-  //   return <></>;
-  // }
+  if (!props?.userId || !props?.receiver) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col w-full h-full">
@@ -147,6 +148,7 @@ const CandidateMatchesPage = () => {
   const [matches, setMatches] = useState([]);
   const [messages, setMessages] = useState();
   const [receiver, setReceiver] = useState();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getAllMatches();
@@ -155,7 +157,7 @@ const CandidateMatchesPage = () => {
   const getAllMatches = async () => {
     try {
       if (!user?.id) return;
-
+      setLoading(true);
       const res = await axiosInstance.get(
         `${urls.match}?userId=${user?.id}&type=${
           router.toLowerCase().includes(CANDIDATE) ? CANDIDATE_TABLE : JOB_TABLE
@@ -163,7 +165,9 @@ const CandidateMatchesPage = () => {
       );
       setMatches(res?.data || []);
     } catch (error) {
-      console.err(error);
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -192,11 +196,17 @@ const CandidateMatchesPage = () => {
         </div>
 
         <div className="flex flex-col overflow-auto max-h-[calc(100% - 10rem)]">
-          {matches
-            ?.filter((match) => match?.fulfilled == "1")
-            ?.map((match, index) => (
-              <MatchCard key={index} match={match} loadChat={loadChat} />
-            ))}
+          {loading ? (
+            <div className="flex items-center justify-center mt-12">
+              <Loader />
+            </div>
+          ) : (
+            matches
+              ?.filter((match) => match?.fulfilled == "1")
+              ?.map((match, index) => (
+                <MatchCard key={index} match={match} loadChat={loadChat} />
+              ))
+          )}
         </div>
       </div>
       <div className="flex flex-1 flex-col gap-y-16 p-8 max-h-full overflow-auto">

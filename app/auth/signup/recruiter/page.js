@@ -22,6 +22,7 @@ const RecruiterSignupPage = () => {
     firstname: "",
   });
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { email, firstname, lastname, password } = formData;
 
@@ -39,6 +40,7 @@ const RecruiterSignupPage = () => {
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     recruiterPool.signUp(
       email,
       password,
@@ -50,6 +52,7 @@ const RecruiterSignupPage = () => {
       (err, data) => {
         if (err) {
           setError(true);
+          setLoading(false);
           console.log(err, "error");
         } else {
           setError(false);
@@ -88,6 +91,7 @@ const RecruiterSignupPage = () => {
         onFailure: (err) => {
           console.log("Failure: ", err);
           setError(true);
+          setLoading(false);
         },
       });
     } catch (error) {
@@ -135,7 +139,11 @@ const RecruiterSignupPage = () => {
           </div>
         </div>
 
-        <SolidButton disabled={saveDisabled} onClick={handleSubmit}>
+        <SolidButton
+          disabled={saveDisabled}
+          loading={loading}
+          onClick={handleSubmit}
+        >
           Sign Up
         </SolidButton>
       </div>

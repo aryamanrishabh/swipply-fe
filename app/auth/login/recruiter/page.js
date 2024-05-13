@@ -20,6 +20,7 @@ const RecruiterLoginPage = () => {
     password: "",
   });
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { email, password } = formData;
 
@@ -44,7 +45,7 @@ const RecruiterLoginPage = () => {
       Username: email,
       Password: password,
     });
-
+    setLoading(true);
     user.authenticateUser(authDetails, {
       onSuccess: (data) => {
         setError(false);
@@ -62,6 +63,7 @@ const RecruiterLoginPage = () => {
       onFailure: (err) => {
         console.log("Failure: ", err);
         setError(true);
+        setLoading(false);
       },
     });
   };
@@ -87,7 +89,9 @@ const RecruiterLoginPage = () => {
           </div>
         </div>
 
-        <SolidButton onClick={handleSubmit}>Login</SolidButton>
+        <SolidButton onClick={handleSubmit} loading={loading}>
+          Login
+        </SolidButton>
       </div>
 
       <span className="text-sm">

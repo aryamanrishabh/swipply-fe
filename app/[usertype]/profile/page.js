@@ -29,6 +29,7 @@ import { LINKEDIN_BLUE } from "@/constants/colors";
 import { setUserData } from "@/redux/slices/authSlice";
 import { locationTypes } from "@/constants/locationTypes";
 import ResumeModal from "./ResumeModal";
+import Loader from "@/Components/Loader";
 
 dayjs.extend(utc);
 
@@ -90,6 +91,9 @@ const ProfilePage = () => {
   const [companyLoading, setCompanyLoading] = useState(true);
   const [showGradDatePicker, setShowGradDatePicker] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [uploading, setUploading] = useState(false);
 
   const isRecruiter = usertype === RECRUITER;
   const isCandidate = usertype === CANDIDATE;
@@ -142,9 +146,9 @@ const ProfilePage = () => {
 
   const getProfile = async () => {
     try {
-      if (!user?.id) {
-        return;
-      }
+      if (!user?.id) return;
+
+      setLoading(true);
       const url = isRecruiter ? urls.recruiterProfile : urls.candidateProfile;
       const res = await axiosInstance.get(`${url}/${user?.id}`);
       const profile = res?.data || {};
@@ -195,6 +199,8 @@ const ProfilePage = () => {
       setConditionalData(conditionalDataCopy);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -273,7 +279,7 @@ const ProfilePage = () => {
   const handleResumeUpload = async (e, redirect = false) => {
     try {
       if (!user?.id) return;
-
+      setUploading(true);
       const file = e.target?.files?.[0];
 
       if (!file) return;
@@ -300,6 +306,8 @@ const ProfilePage = () => {
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -307,6 +315,7 @@ const ProfilePage = () => {
     try {
       if (!user?.id || !user?.createdAt) return;
 
+      setSaving(true);
       const url = isRecruiter
         ? urls.updateRecruiterProfile
         : urls.updateCandidateProfile;
@@ -335,10 +344,10 @@ const ProfilePage = () => {
           payload.preferredLocationType = payload?.preferredLocationType?.value;
       }
 
-      // const res = await axiosInstance.post(url, payload);
-      // const profile = res?.data?.body || {};
+      const res = await axiosInstance.post(url, payload);
+      const profile = res?.data?.body || {};
 
-      // dispatch(setUserData(profile));
+      dispatch(setUserData(profile));
 
       if (searchParams?.get("from") !== "signup" || isRecruiter) {
         let redirectLink = `/${usertype}/dashboard`;
@@ -346,9 +355,11 @@ const ProfilePage = () => {
 
         router.push(redirectLink);
       } else {
+        setSaving(false);
         setShowModal(true);
       }
     } catch (error) {
+      setSaving(false);
       console.log(error);
     }
   };
@@ -359,6 +370,14 @@ const ProfilePage = () => {
 
   if (usertype !== CANDIDATE && usertype !== RECRUITER) return <div>404</div>;
 
+  if (loading) {
+    return (
+      <div className="flex h-full w-full items-center justify-center">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
     <>
       {showModal && (
@@ -367,6 +386,11 @@ const ProfilePage = () => {
             <h3 className="text-lg tracking-wider font-semibold mb-4">
               Please upload your Resume to move forward
             </h3>
+            {!!uploading && (
+              <div>
+                <Loader />
+              </div>
+            )}
             {!!resumeS3Key && (
               <a
                 target="_blank"
@@ -535,6 +559,11 @@ const ProfilePage = () => {
 
               {searchParams?.get("from") !== "signup" && (
                 <div className="flex flex-col gap-y-2">
+                  {!!uploading && (
+                    <div className="ml-16">
+                      <Loader />
+                    </div>
+                  )}
                   {!!resumeS3Key && (
                     <a
                       target="_blank"
@@ -767,7 +796,8 @@ const ProfilePage = () => {
           <div className="flex items-center gap-x-8">
             <OutlineButton onClick={handleBack}>CANCEL</OutlineButton>
             <SolidButton
-              // disabled={saveDisabled}
+              disabled={saveDisabled}
+              loading={saving}
               onClick={handleSubmit}
             >
               SAVE

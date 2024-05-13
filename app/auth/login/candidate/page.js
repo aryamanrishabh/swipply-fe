@@ -20,6 +20,7 @@ const CandidateLoginPage = () => {
     password: "",
   });
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { email, password } = formData;
 
@@ -44,7 +45,7 @@ const CandidateLoginPage = () => {
       Username: email,
       Password: password,
     });
-
+    setLoading(true);
     user.authenticateUser(authDetails, {
       onSuccess: (data) => {
         setError(false);
@@ -61,6 +62,7 @@ const CandidateLoginPage = () => {
       onFailure: (err) => {
         console.log("Failure: ", err);
         setError(true);
+        setLoading(false);
       },
     });
   };
@@ -86,7 +88,9 @@ const CandidateLoginPage = () => {
           </div>
         </div>
 
-        <SolidButton onClick={handleSubmit}>Login</SolidButton>
+        <SolidButton loading={loading} onClick={handleSubmit}>
+          Login
+        </SolidButton>
       </div>
 
       <span className="text-sm">

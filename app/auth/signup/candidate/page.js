@@ -22,6 +22,7 @@ const CandidateSignupPage = () => {
     firstname: "",
   });
   const [error, setError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { email, firstname, lastname, password } = formData;
 
@@ -41,6 +42,7 @@ const CandidateSignupPage = () => {
   };
 
   const handleSubmit = () => {
+    setLoading(true);
     candidatePool.signUp(
       email,
       password,
@@ -52,6 +54,7 @@ const CandidateSignupPage = () => {
       (err, data) => {
         if (err) {
           setError(true);
+          setLoading(false);
           console.log(err, "error");
         } else {
           setError(false);
@@ -90,6 +93,7 @@ const CandidateSignupPage = () => {
         onFailure: (err) => {
           console.log("Failure: ", err);
           setError(true);
+          setLoading(false);
         },
       });
     } catch (error) {
@@ -137,7 +141,11 @@ const CandidateSignupPage = () => {
           </div>
         </div>
 
-        <SolidButton disabled={saveDisabled} onClick={handleSubmit}>
+        <SolidButton
+          loading={loading}
+          disabled={saveDisabled}
+          onClick={handleSubmit}
+        >
           Sign Up
         </SolidButton>
       </div>
