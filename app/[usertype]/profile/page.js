@@ -88,6 +88,7 @@ const ProfilePage = () => {
   const [showDobPicker, setShowDobPicker] = useState(false);
   const [companyLoading, setCompanyLoading] = useState(true);
   const [showGradDatePicker, setShowGradDatePicker] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const isRecruiter = usertype === RECRUITER;
   const isCandidate = usertype === CANDIDATE;
@@ -331,10 +332,15 @@ const ProfilePage = () => {
 
       dispatch(setUserData(profile));
 
-      let redirectLink = `/${usertype}/dashboard`;
-      if (isRecruiter) redirectLink = `/${usertype}/jobs`;
+      if (params?.from !== "signup") {
+        let redirectLink = `/${usertype}/dashboard`;
+        if (isRecruiter) redirectLink = `/${usertype}/jobs`;
 
-      router.push(redirectLink);
+        router.push(redirectLink);
+      } else {
+        // TODO: add modal
+        setShowModal(true);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -479,38 +485,40 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            <div className="flex flex-col gap-y-2">
-              {!!resumeS3Key && (
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  href={`https://${candidateResumeS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
-                    resumeS3Key
-                  )}`}
-                  className="w-fit ml-2"
+            {params?.from !== "signup" && (
+              <div className="flex flex-col gap-y-2">
+                {!!resumeS3Key && (
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={`https://${candidateResumeS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+                      resumeS3Key
+                    )}`}
+                    className="w-fit ml-2"
+                  >
+                    <span className="text-sm underline underline-offset-1 font-bold tracking-widest text-cyan-600">
+                      PREVIEW
+                    </span>
+                  </a>
+                )}
+                <OutlineButton
+                  className="!rounded-full"
+                  onClick={() => resumeInput?.current?.click()}
                 >
-                  <span className="text-sm underline underline-offset-1 font-bold tracking-widest text-cyan-600">
-                    PREVIEW
-                  </span>
-                </a>
-              )}
-              <OutlineButton
-                className="!rounded-full"
-                onClick={() => resumeInput?.current?.click()}
-              >
-                Upload Resume
-              </OutlineButton>
-              <input
-                hidden
-                type="file"
-                ref={resumeInput}
-                accept="application/pdf"
-                onChange={handleResumeUpload}
-              />
-              <span className="text-xs tracking-wider text-gray-500 ml-4">
-                PDF (4MB)
-              </span>
-            </div>
+                  Upload Resume
+                </OutlineButton>
+                <input
+                  hidden
+                  type="file"
+                  ref={resumeInput}
+                  accept="application/pdf"
+                  onChange={handleResumeUpload}
+                />
+                <span className="text-xs tracking-wider text-gray-500 ml-4">
+                  PDF (4MB)
+                </span>
+              </div>
+            )}
 
             <div className="flex flex-col gap-y-2">
               <label className="label">About Me</label>

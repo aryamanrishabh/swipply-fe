@@ -81,7 +81,7 @@ const CandidateSignupPage = () => {
           const usertype = CANDIDATE;
           const uid = idToken?.payload?.sub;
           const accessToken = idToken?.jwtToken;
-          const redirectLink = `/${usertype}/profile`;
+          const redirectLink = `/${usertype}/profile?from=signup`;
 
           dispatch(login({ uid, accessToken, usertype, redirectLink }));
 
