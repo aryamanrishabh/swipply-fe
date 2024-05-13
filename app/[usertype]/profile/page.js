@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 import Image from "next/image";
 import utc from "dayjs/plugin/utc";
 import { FiUser } from "react-icons/fi";
+import { GiArtificialHive } from "react-icons/gi";
 import { useDispatch, useSelector } from "react-redux";
 import { FaLink, FaGithub, FaLinkedin } from "react-icons/fa";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -30,6 +31,7 @@ import { setUserData } from "@/redux/slices/authSlice";
 import { locationTypes } from "@/constants/locationTypes";
 import ResumeModal from "./ResumeModal";
 import Loader from "@/Components/Loader";
+import RecomModal from "./RecomModal";
 
 dayjs.extend(utc);
 
@@ -94,6 +96,9 @@ const ProfilePage = () => {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [recomModal, setRecomModal] = useState(false);
+  const [aIrecommendation, setAiRecommendation] = useState("");
+  const [gettingRecommendation, setGettingRecommendation] = useState(false);
 
   const isRecruiter = usertype === RECRUITER;
   const isCandidate = usertype === CANDIDATE;
@@ -366,6 +371,24 @@ const ProfilePage = () => {
 
   const handleBack = () => router.back();
 
+  const toggleRecomModal = () => setRecomModal((prev) => !prev);
+
+  const getRecommendation = async () => {
+    try {
+      if (!user?.id) return;
+      setGettingRecommendation(true);
+      const res = await axiosInstance.get(
+        `${urls.getAIRecommendation}?userId=${user?.id}`
+      );
+      const data = res?.data || "";
+      setAiRecommendation(data);
+      console.log(data);
+    } catch (error) {
+    } finally {
+      setGettingRecommendation(false);
+    }
+  };
+
   const saveDisabled = !firstname || !lastname || !email || !phone || !gender;
 
   if (usertype !== CANDIDATE && usertype !== RECRUITER) return <div>404</div>;
@@ -423,6 +446,14 @@ const ProfilePage = () => {
             </span>
           </div>
         </ResumeModal>
+      )}
+
+      {recomModal && (
+        <RecomModal
+          data={aIrecommendation}
+          loading={gettingRecommendation}
+          toggleModal={toggleRecomModal}
+        />
       )}
 
       <div className="flex flex-1 p-12 items-start justify-between max-h-full overflow-auto">
@@ -558,42 +589,55 @@ const ProfilePage = () => {
               </div>
 
               {searchParams?.get("from") !== "signup" && (
-                <div className="flex flex-col gap-y-2">
-                  {!!uploading && (
-                    <div className="ml-16">
-                      <Loader />
-                    </div>
-                  )}
-                  {!!resumeS3Key && (
-                    <a
-                      target="_blank"
-                      rel="noreferrer"
-                      href={`https://${candidateResumeS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
-                        resumeS3Key
-                      )}`}
-                      className="w-fit ml-2"
+                <div className="flex w-full items-center gap-x-16">
+                  <div className="flex flex-col gap-y-2">
+                    {!!uploading && (
+                      <div className="ml-16">
+                        <Loader />
+                      </div>
+                    )}
+                    {!!resumeS3Key && (
+                      <a
+                        target="_blank"
+                        rel="noreferrer"
+                        href={`https://${candidateResumeS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+                          resumeS3Key
+                        )}`}
+                        className="w-fit ml-2"
+                      >
+                        <span className="text-sm underline underline-offset-1 font-bold tracking-widest text-cyan-600">
+                          PREVIEW
+                        </span>
+                      </a>
+                    )}
+                    <OutlineButton
+                      className="!rounded-full"
+                      onClick={() => resumeInput?.current?.click()}
                     >
-                      <span className="text-sm underline underline-offset-1 font-bold tracking-widest text-cyan-600">
-                        PREVIEW
-                      </span>
-                    </a>
+                      Upload Resume
+                    </OutlineButton>
+                    <input
+                      hidden
+                      type="file"
+                      ref={resumeInput}
+                      accept="application/pdf"
+                      onChange={(e) => handleResumeUpload(e)}
+                    />
+                    <span className="text-xs tracking-wider text-gray-500 ml-4">
+                      PDF (4MB)
+                    </span>
+                  </div>
+
+                  {!!resumeS3Key && (
+                    <GiArtificialHive
+                      size="3rem"
+                      cursor="pointer"
+                      onClick={() => {
+                        getRecommendation();
+                        toggleRecomModal();
+                      }}
+                    />
                   )}
-                  <OutlineButton
-                    className="!rounded-full"
-                    onClick={() => resumeInput?.current?.click()}
-                  >
-                    Upload Resume
-                  </OutlineButton>
-                  <input
-                    hidden
-                    type="file"
-                    ref={resumeInput}
-                    accept="application/pdf"
-                    onChange={(e) => handleResumeUpload(e)}
-                  />
-                  <span className="text-xs tracking-wider text-gray-500 ml-4">
-                    PDF (4MB)
-                  </span>
                 </div>
               )}
 

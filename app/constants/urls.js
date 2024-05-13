@@ -22,6 +22,7 @@ const urls = {
   getJobRecommendations: `${apiURL}/recommend/jobs`,
   getCandidateRecommendations: `${apiURL}/recommend/candidates`,
   getMessages: `${apiURL}/getMessages`,
+  getAIRecommendation: `${candidateRoute}/improveResume`,
 };
 
 export default urls;
