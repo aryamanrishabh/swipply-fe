@@ -5,6 +5,7 @@ import { FiLogOut } from "react-icons/fi";
 import { usePathname, useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { logout } from "./redux/slices/authSlice";
+import Image from "next/image";
 
 const Header = () => {
   const router = useRouter();
@@ -17,7 +18,16 @@ const Header = () => {
 
   return (
     <div className="flex h-16 min-h-16 px-12 items-center justify-between  bg-blue-500">
-      <h1 className="tracking-wider font-bold text-white text-xl">Swipply</h1>
+      <Image
+        priority
+        width={100}
+        height={100}
+        draggable={false}
+        className="h-full"
+        objectFit="contain"
+        alt="Swipply logo"
+        src="/assets/swipply-logo.png"
+      />
 
       <FiLogOut
         size="1.5rem"
