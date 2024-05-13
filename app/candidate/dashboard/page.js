@@ -21,10 +21,10 @@ import Image from "next/image";
 import { userPictureS3Bucket } from "@/constants/variable";
 import Loader from "@/Components/Loader";
 
-const RecruiterHeader = ({ title, city, state }) => (
+const RecruiterHeader = ({ title, city, state, company }) => (
   <div className="flex flex-col gap-y-1">
     <h1 className="text-base tracking-normal font-medium">{title}</h1>
-    <h2 className="text-sm tracking-wide text-gray-500">Google</h2>
+    <h2 className="text-sm tracking-wide text-gray-500">{company}</h2>
     <span className="text-sm tracking-wide font-light">{`${city}, ${state}`}</span>
   </div>
 );
@@ -84,6 +84,7 @@ const JobCard = ({ i, data }) => {
               city={data?.city}
               state={data?.state}
               title={data?.title}
+              company={data?.companyInfo?.name}
             />
           </div>
         </div>
