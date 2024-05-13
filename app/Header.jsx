@@ -17,7 +17,7 @@ const Header = () => {
 
   return (
     <div className="flex h-16 min-h-16 px-12 items-center justify-between  bg-blue-500">
-      <span>Header</span>
+      <h1 className="tracking-wider font-bold text-white text-xl">Swipply</h1>
 
       <FiLogOut
         size="1.5rem"

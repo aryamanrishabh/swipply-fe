@@ -188,17 +188,22 @@ const CandidateRecommendationsPage = () => {
 
   const handleSwipe = (id, direction) => {
     try {
+      if (!jobID) return;
+
       // add to local storage
       let ignoreIds = [];
+      let ignoreIdsObj = {};
       try {
-        ignoreIds = JSON.parse(localStorage.getItem(IGNORE_CANDIDATE_IDS));
+        ignoreIdsObj = JSON.parse(localStorage.getItem(IGNORE_CANDIDATE_IDS));
+        ignoreIds = ignoreIdsObj?.[jobID];
         ignoreIds ||= [];
       } catch (error) {}
 
       ignoreIds?.push(id);
       ignoreIds = [...new Set(ignoreIds)];
-      ignoreIds = JSON.stringify(ignoreIds);
-      localStorage.setItem(IGNORE_CANDIDATE_IDS, ignoreIds);
+      ignoreIdsObj = { ...ignoreIdsObj, [jobID]: ignoreIds };
+      ignoreIds = JSON.stringify(ignoreIdsObj);
+      localStorage.setItem(IGNORE_CANDIDATE_IDS, ignoreIdsObj);
 
       // pop array
       const candidatesCopy = structuredClone(recommendedCandidates);
@@ -239,9 +244,11 @@ const CandidateRecommendationsPage = () => {
       if (!jobID) return;
 
       let ignoreIds = [];
+      let ignoreIdsObj = {};
 
       try {
-        ignoreIds = JSON.parse(localStorage.getItem(IGNORE_CANDIDATE_IDS));
+        ignoreIdsObj = JSON.parse(localStorage.getItem(IGNORE_CANDIDATE_IDS));
+        ignoreIds = ignoreIdsObj?.[jobID];
         ignoreIds ||= [];
       } catch (error) {}
 

@@ -28,6 +28,7 @@ import { CANDIDATE, RECRUITER } from "@/constants";
 import { LINKEDIN_BLUE } from "@/constants/colors";
 import { setUserData } from "@/redux/slices/authSlice";
 import { locationTypes } from "@/constants/locationTypes";
+import ResumeModal from "./ResumeModal";
 
 dayjs.extend(utc);
 
@@ -269,7 +270,7 @@ const ProfilePage = () => {
     }
   };
 
-  const handleResumeUpload = async (e) => {
+  const handleResumeUpload = async (e, redirect = false) => {
     try {
       if (!user?.id) return;
 
@@ -290,6 +291,13 @@ const ProfilePage = () => {
       const resumeS3Key = res?.data;
 
       setConditionalData((prev) => ({ ...prev, resumeS3Key }));
+
+      if (redirect) {
+        let redirectLink = `/${usertype}/dashboard`;
+        if (isRecruiter) redirectLink = `/${usertype}/jobs`;
+
+        router.push(redirectLink);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -327,18 +335,17 @@ const ProfilePage = () => {
           payload.preferredLocationType = payload?.preferredLocationType?.value;
       }
 
-      const res = await axiosInstance.post(url, payload);
-      const profile = res?.data?.body || {};
+      // const res = await axiosInstance.post(url, payload);
+      // const profile = res?.data?.body || {};
 
-      dispatch(setUserData(profile));
+      // dispatch(setUserData(profile));
 
-      if (params?.from !== "signup") {
+      if (searchParams?.get("from") !== "signup" || isRecruiter) {
         let redirectLink = `/${usertype}/dashboard`;
         if (isRecruiter) redirectLink = `/${usertype}/jobs`;
 
         router.push(redirectLink);
       } else {
-        // TODO: add modal
         setShowModal(true);
       }
     } catch (error) {
@@ -353,404 +360,455 @@ const ProfilePage = () => {
   if (usertype !== CANDIDATE && usertype !== RECRUITER) return <div>404</div>;
 
   return (
-    <div className="flex flex-1 p-12 items-start justify-between max-h-full overflow-auto">
-      <div className="flex flex-col gap-y-16">
-        <div className="flex items-center gap-x-12">
-          <div className="flex flex-col gap-y-2">
-            <label className="label">First Name *</label>
-            <TextInput
-              disabled
-              name="firstname"
-              value={firstname}
-              onChange={handleMandatoryInput}
+    <>
+      {showModal && (
+        <ResumeModal>
+          <div className="flex flex-col w-full items-center gap-y-2">
+            <h3 className="text-lg tracking-wider font-semibold mb-4">
+              Please upload your Resume to move forward
+            </h3>
+            {!!resumeS3Key && (
+              <a
+                target="_blank"
+                rel="noreferrer"
+                href={`https://${candidateResumeS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+                  resumeS3Key
+                )}`}
+                className="w-fit"
+              >
+                <span className="text-sm underline underline-offset-1 font-bold tracking-widest text-cyan-600">
+                  PREVIEW
+                </span>
+              </a>
+            )}
+            <OutlineButton
+              className="!rounded-full"
+              onClick={() => resumeInput?.current?.click()}
+            >
+              Upload Resume
+            </OutlineButton>
+            <input
+              hidden
+              type="file"
+              ref={resumeInput}
+              accept="application/pdf"
+              onChange={(e) => handleResumeUpload(e, true)}
             />
+            <span className="text-xs tracking-wider text-gray-500">
+              PDF (4MB)
+            </span>
+          </div>
+        </ResumeModal>
+      )}
+
+      <div className="flex flex-1 p-12 items-start justify-between max-h-full overflow-auto">
+        <div className="flex flex-col gap-y-16">
+          <div className="flex items-center gap-x-12">
+            <div className="flex flex-col gap-y-2">
+              <label className="label">First Name *</label>
+              <TextInput
+                disabled
+                name="firstname"
+                value={firstname}
+                onChange={handleMandatoryInput}
+              />
+            </div>
+
+            <div className="flex flex-col gap-y-2">
+              <label className="label">Last Name *</label>
+              <TextInput
+                disabled
+                name="lastname"
+                value={lastname}
+                onChange={handleMandatoryInput}
+              />
+            </div>
           </div>
 
-          <div className="flex flex-col gap-y-2">
-            <label className="label">Last Name *</label>
-            <TextInput
-              disabled
-              name="lastname"
-              value={lastname}
-              onChange={handleMandatoryInput}
-            />
-          </div>
-        </div>
+          <div className="flex items-center gap-x-12">
+            <div className="flex flex-col gap-y-2">
+              <label className="label">Email *</label>
+              <TextInput
+                disabled
+                name="email"
+                value={email}
+                onChange={handleMandatoryInput}
+              />
+            </div>
 
-        <div className="flex items-center gap-x-12">
-          <div className="flex flex-col gap-y-2">
-            <label className="label">Email *</label>
-            <TextInput
-              disabled
-              name="email"
-              value={email}
-              onChange={handleMandatoryInput}
-            />
-          </div>
-
-          <div className="flex flex-col gap-y-2">
-            <label className="label">Phone Number *</label>
-            <TextInput
-              name="phone"
-              value={phone}
-              onChange={handleMandatoryInput}
-            />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-x-12">
-          <div className="flex flex-col gap-y-2 w-80">
-            <label className="label">Gender *</label>
-            <SelectDropdown
-              value={gender}
-              options={genders}
-              onChange={(e) =>
-                setMandatoryData((prev) => ({ ...prev, gender: e }))
-              }
-            />
+            <div className="flex flex-col gap-y-2">
+              <label className="label">Phone Number *</label>
+              <TextInput
+                name="phone"
+                value={phone}
+                onChange={handleMandatoryInput}
+              />
+            </div>
           </div>
 
-          {isCandidate && (
+          <div className="flex items-center gap-x-12">
             <div className="flex flex-col gap-y-2 w-80">
-              <label className="label">Date of Birth</label>
-              <DatePicker
-                date={dob}
-                max={today}
-                setDate={selectDob}
-                open={showDobPicker}
-                toggleCalendar={toggleDobPicker}
+              <label className="label">Gender *</label>
+              <SelectDropdown
+                value={gender}
+                options={genders}
+                onChange={(e) =>
+                  setMandatoryData((prev) => ({ ...prev, gender: e }))
+                }
+              />
+            </div>
+
+            {isCandidate && (
+              <div className="flex flex-col gap-y-2 w-80">
+                <label className="label">Date of Birth</label>
+                <DatePicker
+                  date={dob}
+                  max={today}
+                  setDate={selectDob}
+                  open={showDobPicker}
+                  toggleCalendar={toggleDobPicker}
+                />
+              </div>
+            )}
+          </div>
+
+          {isRecruiter && (
+            <div className="flex flex-col gap-y-2 w-80">
+              <label className="label">Current Organization *</label>
+              <SelectDropdown
+                value={companyId}
+                options={companies}
+                isLoading={companyLoading}
+                isDisabled={!companies || !!user?.companyId}
+                onChange={(e) => {
+                  if (e?.value === CREATE_ORG) {
+                    router.push("/company/profile");
+                  } else {
+                    setMandatoryData((prev) => ({ ...prev, companyId: e }));
+                  }
+                }}
               />
             </div>
           )}
-        </div>
 
-        {isRecruiter && (
-          <div className="flex flex-col gap-y-2 w-80">
-            <label className="label">Current Organization *</label>
-            <SelectDropdown
-              value={companyId}
-              options={companies}
-              isLoading={companyLoading}
-              isDisabled={!companies || !!user?.companyId}
-              onChange={(e) => {
-                if (e?.value === CREATE_ORG) {
-                  router.push("/company/profile");
-                } else {
-                  setMandatoryData((prev) => ({ ...prev, companyId: e }));
-                }
-              }}
-            />
-          </div>
-        )}
+          {isCandidate && (
+            <>
+              <div className="flex items-center gap-x-12">
+                <div className="flex flex-col gap-y-2">
+                  <label className="label">City</label>
+                  <TextInput
+                    name="city"
+                    value={city}
+                    onChange={handleFormInput}
+                  />
+                </div>
 
-        {isCandidate && (
-          <>
-            <div className="flex items-center gap-x-12">
-              <div className="flex flex-col gap-y-2">
-                <label className="label">City</label>
-                <TextInput
-                  name="city"
-                  value={city}
-                  onChange={handleFormInput}
-                />
+                <div className="flex flex-col gap-y-2">
+                  <label className="label">State</label>
+                  <TextInput
+                    name="state"
+                    value={state}
+                    onChange={handleFormInput}
+                  />
+                </div>
               </div>
 
-              <div className="flex flex-col gap-y-2">
-                <label className="label">State</label>
-                <TextInput
-                  name="state"
-                  value={state}
-                  onChange={handleFormInput}
-                />
-              </div>
-            </div>
+              <div className="flex items-center gap-x-12">
+                <div className="flex flex-col gap-y-2">
+                  <label className="label">Country</label>
+                  <TextInput
+                    name="country"
+                    value={country}
+                    onChange={handleFormInput}
+                  />
+                </div>
 
-            <div className="flex items-center gap-x-12">
-              <div className="flex flex-col gap-y-2">
-                <label className="label">Country</label>
-                <TextInput
-                  name="country"
-                  value={country}
-                  onChange={handleFormInput}
-                />
+                <div className="flex flex-col gap-y-2">
+                  <label className="label">Zipcode</label>
+                  <TextInput
+                    name="zipcode"
+                    value={zipcode}
+                    onChange={handleFormInput}
+                  />
+                </div>
               </div>
 
-              <div className="flex flex-col gap-y-2">
-                <label className="label">Zipcode</label>
-                <TextInput
-                  name="zipcode"
-                  value={zipcode}
-                  onChange={handleFormInput}
-                />
-              </div>
-            </div>
-
-            {params?.from !== "signup" && (
-              <div className="flex flex-col gap-y-2">
-                {!!resumeS3Key && (
-                  <a
-                    target="_blank"
-                    rel="noreferrer"
-                    href={`https://${candidateResumeS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
-                      resumeS3Key
-                    )}`}
-                    className="w-fit ml-2"
+              {searchParams?.get("from") !== "signup" && (
+                <div className="flex flex-col gap-y-2">
+                  {!!resumeS3Key && (
+                    <a
+                      target="_blank"
+                      rel="noreferrer"
+                      href={`https://${candidateResumeS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+                        resumeS3Key
+                      )}`}
+                      className="w-fit ml-2"
+                    >
+                      <span className="text-sm underline underline-offset-1 font-bold tracking-widest text-cyan-600">
+                        PREVIEW
+                      </span>
+                    </a>
+                  )}
+                  <OutlineButton
+                    className="!rounded-full"
+                    onClick={() => resumeInput?.current?.click()}
                   >
-                    <span className="text-sm underline underline-offset-1 font-bold tracking-widest text-cyan-600">
-                      PREVIEW
-                    </span>
-                  </a>
-                )}
-                <OutlineButton
-                  className="!rounded-full"
-                  onClick={() => resumeInput?.current?.click()}
-                >
-                  Upload Resume
-                </OutlineButton>
-                <input
-                  hidden
-                  type="file"
-                  ref={resumeInput}
-                  accept="application/pdf"
-                  onChange={handleResumeUpload}
-                />
-                <span className="text-xs tracking-wider text-gray-500 ml-4">
-                  PDF (4MB)
-                </span>
-              </div>
-            )}
+                    Upload Resume
+                  </OutlineButton>
+                  <input
+                    hidden
+                    type="file"
+                    ref={resumeInput}
+                    accept="application/pdf"
+                    onChange={(e) => handleResumeUpload(e)}
+                  />
+                  <span className="text-xs tracking-wider text-gray-500 ml-4">
+                    PDF (4MB)
+                  </span>
+                </div>
+              )}
 
-            <div className="flex flex-col gap-y-2">
-              <label className="label">About Me</label>
-              <TextArea name="about" value={about} onChange={handleFormInput} />
-            </div>
-
-            <div className="flex items-center gap-x-12">
               <div className="flex flex-col gap-y-2">
-                <label className="label">Years of Experience</label>
-                <TextInput
-                  name="yearsOfExperience"
-                  value={yearsOfExperience}
+                <label className="label">About Me</label>
+                <TextArea
+                  name="about"
+                  value={about}
                   onChange={handleFormInput}
                 />
+              </div>
+
+              <div className="flex items-center gap-x-12">
+                <div className="flex flex-col gap-y-2">
+                  <label className="label">Years of Experience</label>
+                  <TextInput
+                    name="yearsOfExperience"
+                    value={yearsOfExperience}
+                    onChange={handleFormInput}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-y-2 w-80">
+                  <label className="label">
+                    Type of Job you are looking for
+                  </label>
+
+                  <SelectDropdown
+                    options={jobTypes}
+                    value={lookingForJobType}
+                    onChange={(e) =>
+                      setConditionalData((prev) => ({
+                        ...prev,
+                        lookingForJobType: e,
+                      }))
+                    }
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col gap-y-2 w-80">
-                <label className="label">Type of Job you are looking for</label>
+                <label className="label">Preferred Job Location</label>
 
                 <SelectDropdown
-                  options={jobTypes}
-                  value={lookingForJobType}
+                  options={locationTypes}
+                  value={preferredLocationType}
                   onChange={(e) =>
                     setConditionalData((prev) => ({
                       ...prev,
-                      lookingForJobType: e,
+                      preferredLocationType: e,
                     }))
                   }
                 />
               </div>
-            </div>
 
-            <div className="flex flex-col gap-y-2 w-80">
-              <label className="label">Preferred Job Location</label>
-
-              <SelectDropdown
-                options={locationTypes}
-                value={preferredLocationType}
-                onChange={(e) =>
-                  setConditionalData((prev) => ({
-                    ...prev,
-                    preferredLocationType: e,
-                  }))
-                }
-              />
-            </div>
-
-            <div className="flex items-center gap-x-12">
-              <div className="flex flex-col gap-y-2">
-                <label className="label">Job Title Preferences</label>
-                <TextInput
-                  onChange={handleFormInput}
-                  name="lookingForTitle"
-                  value={lookingForTitle}
-                />
-              </div>
-
-              <div className="flex flex-col gap-y-2 w-80">
-                <label className="label">Desired Compensation</label>
-
-                <div className="flex item-center gap-x-8 w-40">
+              <div className="flex items-center gap-x-12">
+                <div className="flex flex-col gap-y-2">
+                  <label className="label">Job Title Preferences</label>
                   <TextInput
-                    type="number"
-                    placeholder="Min"
-                    className="w-36"
-                    name="minCompensation"
-                    value={minCompensation}
                     onChange={handleFormInput}
-                    style={{ minWidth: "unset" }}
-                  />
-                  <TextInput
-                    type="number"
-                    placeholder="Max"
-                    className="w-36"
-                    name="maxCompensation"
-                    value={maxCompensation}
-                    onChange={handleFormInput}
-                    style={{ minWidth: "unset" }}
+                    name="lookingForTitle"
+                    value={lookingForTitle}
                   />
                 </div>
-              </div>
-            </div>
 
-            <div className="flex flex-col gap-y-8">
-              <h3 className="text-2xl font-semibold tracking-wide">
-                Most Recent Graduation Details
-              </h3>
+                <div className="flex flex-col gap-y-2 w-80">
+                  <label className="label">Desired Compensation</label>
 
-              <div className="flex flex-col gap-y-16">
-                <div className="flex items-center gap-x-12">
-                  <div className="flex flex-col gap-y-2">
-                    <label className="label">University</label>
+                  <div className="flex item-center gap-x-8 w-40">
                     <TextInput
-                      name="university"
-                      value={university}
+                      type="number"
+                      placeholder="Min"
+                      className="w-36"
+                      name="minCompensation"
+                      value={minCompensation}
                       onChange={handleFormInput}
+                      style={{ minWidth: "unset" }}
                     />
-                  </div>
-
-                  <div className="flex flex-col gap-y-2">
-                    <label className="label">Degree</label>
                     <TextInput
-                      name="degree"
-                      value={degree}
+                      type="number"
+                      placeholder="Max"
+                      className="w-36"
+                      name="maxCompensation"
+                      value={maxCompensation}
                       onChange={handleFormInput}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-x-12">
-                  <div className="flex flex-col gap-y-2">
-                    <label className="label">Major</label>
-                    <TextInput
-                      name="major"
-                      value={major}
-                      onChange={handleFormInput}
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-y-2 w-80">
-                    <label className="label">Graduation Date</label>
-                    <DatePicker
-                      increaseMaxYear
-                      date={graduationDate}
-                      setDate={selectGradDate}
-                      open={showGradDatePicker}
-                      toggleCalendar={toggleGradDatePicker}
+                      style={{ minWidth: "unset" }}
                     />
                   </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-x-12">
-              <div className="flex flex-col gap-y-2">
-                <label className="label">Current Organization</label>
-                <TextInput
-                  onChange={handleFormInput}
-                  name="currentOrganization"
-                  value={currentOrganization}
-                />
+              <div className="flex flex-col gap-y-8">
+                <h3 className="text-2xl font-semibold tracking-wide">
+                  Most Recent Graduation Details
+                </h3>
+
+                <div className="flex flex-col gap-y-16">
+                  <div className="flex items-center gap-x-12">
+                    <div className="flex flex-col gap-y-2">
+                      <label className="label">University</label>
+                      <TextInput
+                        name="university"
+                        value={university}
+                        onChange={handleFormInput}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-y-2">
+                      <label className="label">Degree</label>
+                      <TextInput
+                        name="degree"
+                        value={degree}
+                        onChange={handleFormInput}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-x-12">
+                    <div className="flex flex-col gap-y-2">
+                      <label className="label">Major</label>
+                      <TextInput
+                        name="major"
+                        value={major}
+                        onChange={handleFormInput}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-y-2 w-80">
+                      <label className="label">Graduation Date</label>
+                      <DatePicker
+                        increaseMaxYear
+                        date={graduationDate}
+                        setDate={selectGradDate}
+                        open={showGradDatePicker}
+                        toggleCalendar={toggleGradDatePicker}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-y-2">
-                <label className="label">Current Role</label>
-                <TextInput
-                  name="currentRole"
-                  value={currentRole}
-                  onChange={handleFormInput}
-                />
-              </div>
-            </div>
+              <div className="flex items-center gap-x-12">
+                <div className="flex flex-col gap-y-2">
+                  <label className="label">Current Organization</label>
+                  <TextInput
+                    onChange={handleFormInput}
+                    name="currentOrganization"
+                    value={currentOrganization}
+                  />
+                </div>
 
-            <div className="flex flex-col gap-y-8 w-80">
-              <h3 className="text-2xl font-semibold tracking-wide">Links</h3>
-              <div className="flex items-center gap-x-8">
-                <FaLinkedin color={LINKEDIN_BLUE} className="min-w-6 min-h-6" />
-                <TextInput
-                  name="linkedin"
-                  value={linkedin}
-                  onChange={handleFormInput}
-                  placeholder="LinkedIn link"
-                />
+                <div className="flex flex-col gap-y-2">
+                  <label className="label">Current Role</label>
+                  <TextInput
+                    name="currentRole"
+                    value={currentRole}
+                    onChange={handleFormInput}
+                  />
+                </div>
               </div>
 
-              <div className="flex items-center gap-x-8">
-                <FaLink className="min-w-6 min-h-6" />
-                <TextInput
-                  name="portfolio"
-                  value={portfolio}
-                  onChange={handleFormInput}
-                  placeholder="Portfolio/Website link"
-                />
-              </div>
+              <div className="flex flex-col gap-y-8 w-80">
+                <h3 className="text-2xl font-semibold tracking-wide">Links</h3>
+                <div className="flex items-center gap-x-8">
+                  <FaLinkedin
+                    color={LINKEDIN_BLUE}
+                    className="min-w-6 min-h-6"
+                  />
+                  <TextInput
+                    name="linkedin"
+                    value={linkedin}
+                    onChange={handleFormInput}
+                    placeholder="LinkedIn link"
+                  />
+                </div>
 
-              <div className="flex items-center gap-x-8">
-                <FaGithub className="min-w-6 min-h-6" />
-                <TextInput
-                  name="github"
-                  value={github}
-                  onChange={handleFormInput}
-                  placeholder="GitHub link"
-                />
-              </div>
-            </div>
-          </>
-        )}
+                <div className="flex items-center gap-x-8">
+                  <FaLink className="min-w-6 min-h-6" />
+                  <TextInput
+                    name="portfolio"
+                    value={portfolio}
+                    onChange={handleFormInput}
+                    placeholder="Portfolio/Website link"
+                  />
+                </div>
 
-        <div className="flex items-center gap-x-8">
-          <OutlineButton onClick={handleBack}>CANCEL</OutlineButton>
-          <SolidButton
-            // disabled={saveDisabled}
-            onClick={handleSubmit}
-          >
-            SAVE
-          </SolidButton>
-        </div>
-      </div>
-      <div className="flex flex-col gap-y-8 items-center">
-        <div
-          onClick={() => inputRef?.current?.click()}
-          className="flex h-32 w-32 rounded-full bg-gray-500 items-center justify-center cursor-pointer relative overflow-hidden"
-        >
-          {conditionalData?.profilePictureS3Key ? (
-            <Image
-              alt="Profile picture"
-              src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
-                conditionalData?.profilePictureS3Key
-              )}`}
-              width={128}
-              height={128}
-              objectFit="contain"
-              className="min-w-full min-h-full"
-            />
-          ) : (
-            <FiUser color="white" size="5rem" />
+                <div className="flex items-center gap-x-8">
+                  <FaGithub className="min-w-6 min-h-6" />
+                  <TextInput
+                    name="github"
+                    value={github}
+                    onChange={handleFormInput}
+                    placeholder="GitHub link"
+                  />
+                </div>
+              </div>
+            </>
           )}
-          <div className="flex opacity-0 transition w-full h-full absolute backdrop-brightness-50 hover:opacity-85 items-center justify-center">
-            <span className="text-xl font-semibold text-white">
-              Upload <br /> Picture
-            </span>
+
+          <div className="flex items-center gap-x-8">
+            <OutlineButton onClick={handleBack}>CANCEL</OutlineButton>
+            <SolidButton
+              // disabled={saveDisabled}
+              onClick={handleSubmit}
+            >
+              SAVE
+            </SolidButton>
           </div>
-          <input
-            hidden
-            type="file"
-            ref={inputRef}
-            accept="image/jpeg, image/jpg"
-            onChange={handleProfilePictureUpload}
-          />
+        </div>
+        <div className="flex flex-col gap-y-8 items-center">
+          <div
+            onClick={() => inputRef?.current?.click()}
+            className="flex h-32 w-32 rounded-full bg-gray-500 items-center justify-center cursor-pointer relative overflow-hidden"
+          >
+            {conditionalData?.profilePictureS3Key ? (
+              <Image
+                alt="Profile picture"
+                src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+                  conditionalData?.profilePictureS3Key
+                )}`}
+                width={128}
+                height={128}
+                objectFit="contain"
+                className="min-w-full min-h-full"
+              />
+            ) : (
+              <FiUser color="white" size="5rem" />
+            )}
+            <div className="flex opacity-0 transition w-full h-full absolute backdrop-brightness-50 hover:opacity-85 items-center justify-center">
+              <span className="text-xl font-semibold text-white">
+                Upload <br /> Picture
+              </span>
+            </div>
+            <input
+              hidden
+              type="file"
+              ref={inputRef}
+              accept="image/jpeg, image/jpg"
+              onChange={handleProfilePictureUpload}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
