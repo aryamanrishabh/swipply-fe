@@ -12,9 +12,13 @@ import axiosInstance from "@/axiosInstance";
 
 import { usePrevious } from "@/hooks/usePrevious";
 import { LINKEDIN_BLUE } from "@/constants/colors";
-import { candidateResumeS3Bucket } from "@/constants/variable";
+import {
+  candidateResumeS3Bucket,
+  userPictureS3Bucket,
+} from "@/constants/variable";
 import { CANDIDATE, IGNORE_CANDIDATE_IDS, RECRUITER } from "@/constants";
 import { LEFT, RIGHT } from "@/constants/swipeDirections";
+import Image from "next/image";
 
 const CandidateHeader = ({ city, state, firstname, lastname, university }) => (
   <div className="flex flex-col gap-y-1">
@@ -127,7 +131,20 @@ const CandidateCard = ({ i, data }) => {
       <div className="flex flex-col w-full max-h-full overflow-auto gap-y-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-4">
-            <div className="h-28 w-28 border-[1.5px] bg-gray-200 rounded-full"></div>
+            <div className="h-28 w-28 border-[1.5px] bg-gray-200 rounded-full overflow-hidden">
+              {data?.profilePictureS3Key && (
+                <Image
+                  src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+                    data?.profilePictureS3Key
+                  )}`}
+                  alt=""
+                  width={68}
+                  height={68}
+                  objectFit="contain"
+                  className="min-w-full min-h-full"
+                />
+              )}
+            </div>
             <CandidateHeader
               city={data?.city}
               state={data?.state}
