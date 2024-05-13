@@ -17,6 +17,8 @@ import { LEFT, RIGHT } from "@/constants/swipeDirections";
 import { CANDIDATE, IGNORE_JOB_IDS, RECRUITER } from "@/constants";
 
 import { dummyJobs } from "@/dummyData/recommendedJobs";
+import Image from "next/image";
+import { userPictureS3Bucket } from "@/constants/variable";
 
 const RecruiterHeader = ({ title, city, state }) => (
   <div className="flex flex-col gap-y-1">
@@ -63,7 +65,20 @@ const JobCard = ({ i, data }) => {
       <div className="flex flex-col w-full max-h-full overflow-auto gap-y-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-x-4">
-            <div className="h-28 w-28 border-[1.5px] bg-gray-200 rounded-full"></div>
+            <div className="h-28 w-28 border-[1.5px] bg-gray-200 rounded-full overflow-hidden">
+              {data?.companyInfo?.imageS3Key && (
+                <Image
+                  src={`https://${userPictureS3Bucket}.s3.amazonaws.com/${encodeURIComponent(
+                    data?.companyInfo?.imageS3Key
+                  )}`}
+                  alt=""
+                  width={68}
+                  height={68}
+                  objectFit="contain"
+                  className="min-w-full min-h-full"
+                />
+              )}
+            </div>
             <RecruiterHeader
               city={data?.city}
               state={data?.state}
