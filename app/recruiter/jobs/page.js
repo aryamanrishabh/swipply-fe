@@ -118,6 +118,15 @@ const JobsPage = () => {
             </div>
 
             <div className="flex flex-col gap-y-1">
+              <span className="font-semibold">Skills Required:</span>
+              <ul className="flex flex-col gap-y-2">
+                {selectedJobData?.skills?.map(({ label }, i) => (
+                  <li key={label + i}>&bull; {label}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="flex flex-col gap-y-1">
               <span className="font-semibold">Qualifications</span>
               <p className="text-gray-600">{selectedJobData?.qualifications}</p>
             </div>

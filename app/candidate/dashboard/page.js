@@ -29,30 +29,43 @@ const RecruiterHeader = ({ title, city, state, company }) => (
   </div>
 );
 
-const RecruiterBody = ({ about, qualifications, responsibilities }) => (
-  <div className="flex flex-col gap-y-6">
-    {!!about && (
-      <div className="flex flex-col gap-y-4">
-        <span className="text-xl font-semibold">About the Job</span>
-        <p className="text-gray-600">{about}</p>
-      </div>
-    )}
+const RecruiterBody = ({ about, skills, qualifications, responsibilities }) => {
+  return (
+    <div className="flex flex-col gap-y-6">
+      {!!about && (
+        <div className="flex flex-col gap-y-4">
+          <span className="text-xl font-semibold">About the Job</span>
+          <p className="text-gray-600">{about}</p>
+        </div>
+      )}
 
-    {!!responsibilities && (
-      <div className="flex flex-col gap-y-1">
-        <span className="font-semibold">Responsibilities</span>
-        <p className="text-gray-600">{responsibilities}</p>
-      </div>
-    )}
+      {!!skills?.length && (
+        <div className="flex flex-col gap-y-4">
+          <h3>Skills Required:</h3>
+          <ul className="flex flex-col gap-y-2">
+            {skills?.map(({ label }, i) => (
+              <li key={label + i}>&bull; {label}</li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-    {!!qualifications && (
-      <div className="flex flex-col gap-y-1">
-        <span className="font-semibold">Qualifications</span>
-        <p className="text-gray-600">{qualifications}</p>
-      </div>
-    )}
-  </div>
-);
+      {!!responsibilities && (
+        <div className="flex flex-col gap-y-1">
+          <span className="font-semibold">Responsibilities</span>
+          <p className="text-gray-600">{responsibilities}</p>
+        </div>
+      )}
+
+      {!!qualifications && (
+        <div className="flex flex-col gap-y-1">
+          <span className="font-semibold">Qualifications</span>
+          <p className="text-gray-600">{qualifications}</p>
+        </div>
+      )}
+    </div>
+  );
+};
 
 const JobCard = ({ i, data }) => {
   const zIndex = 1000 - i;
@@ -90,6 +103,7 @@ const JobCard = ({ i, data }) => {
         </div>
         <RecruiterBody
           about={data?.about}
+          skills={data?.skills}
           qualifications={data?.qualifications}
           responsibilities={data?.responsibilities}
         />
