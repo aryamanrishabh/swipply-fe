@@ -636,6 +636,7 @@ const ProfilePage = () => {
                         getRecommendation();
                         toggleRecomModal();
                       }}
+                      title="By clicking you are agreeing to share your Resume data with third party services"
                     />
                   )}
                 </div>

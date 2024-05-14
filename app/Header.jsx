@@ -17,16 +17,16 @@ const Header = () => {
   if (path?.includes?.("auth")) return null;
 
   return (
-    <div className="flex h-16 min-h-16 px-12 items-center justify-between  bg-blue-500">
+    <div className="flex h-16 min-h-16 px-12 items-center justify-between overflow-hidden bg-blue-500">
       <Image
         priority
         width={100}
         height={100}
         draggable={false}
-        className="h-full"
         objectFit="contain"
         alt="Swipply logo"
         src="/assets/swipply-logo.png"
+        className="h-[150%] object-contain"
       />
 
       <FiLogOut
