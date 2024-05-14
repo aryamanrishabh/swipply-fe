@@ -196,6 +196,7 @@ const CandidateRecommendationsPage = () => {
       let ignoreIdsObj = {};
       try {
         ignoreIdsObj = JSON.parse(localStorage.getItem(IGNORE_CANDIDATE_IDS));
+        console.log(ignoreIdsObj, "obj");
         ignoreIds = ignoreIdsObj?.[jobID];
         ignoreIds ||= [];
       } catch (error) {}
@@ -203,7 +204,7 @@ const CandidateRecommendationsPage = () => {
       ignoreIds?.push(id);
       ignoreIds = [...new Set(ignoreIds)];
       ignoreIdsObj = { ...ignoreIdsObj, [jobID]: ignoreIds };
-      ignoreIds = JSON.stringify(ignoreIdsObj);
+      ignoreIdsObj = JSON.stringify(ignoreIdsObj);
       localStorage.setItem(IGNORE_CANDIDATE_IDS, ignoreIdsObj);
 
       // pop array
